@@ -51,12 +51,15 @@ public:
 
     bool move(Coord from, Coord to);
 
+    bool detect_check(Color c);
+
     void select(Coord c);
     void set_tile_size(float size);
 
 private:
-    std::vector<Coord> get_valid_moves(Coord from) const;
-    void scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves) const;
+    std::vector<Coord> get_valid_moves(Coord from, bool raw);
+    void scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves, bool raw);
+    void add_valid_move(std::vector<Coord> &moves, Coord from, Coord to, bool raw);
 
     char at(Coord c) const;
     Color color_at(Coord c) const;
