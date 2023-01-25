@@ -1,7 +1,7 @@
 #include "prog.h"
 
 Prog::Prog(SDL_Window *w, SDL_Renderer *r)
-    : m_win(w), m_rend(r)
+    : m_win(w), m_rend(r), m_board(r, "board")
 {
 }
 

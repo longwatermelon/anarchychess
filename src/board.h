@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <string>
+#include <unordered_map>
 #include <SDL2/SDL.h>
 
 struct Coord
@@ -27,10 +28,16 @@ struct Coord
     }
 };
 
+enum class Color
+{
+    WHITE,
+    BLACK
+};
+
 class Board
 {
 public:
-    Board();
+    Board(SDL_Renderer *rend, const std::string &board_fp);
     ~Board();
 
     void render(SDL_Renderer *rend, SDL_FPoint top_left);
@@ -42,5 +49,7 @@ public:
 private:
     std::array<std::array<char, 8>, 8> m_board;
     float m_tile_size{ 0.f };
+
+    std::unordered_map<char, SDL_Texture*> m_textures;
 };
 
