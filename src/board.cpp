@@ -166,6 +166,28 @@ std::vector<Coord> Board::get_valid_moves(Coord from) const
         scan_valid(from, -1, 0, moves);
         scan_valid(from, 0, -1, moves);
         break;
+    case 'n': case 'N':
+    {
+        for (int y = std::max(0, from.y - 2); y <= std::min(7, from.y + 2); ++y)
+        {
+            for (int x = std::max(0, from.x - 2); x <= std::min(7, from.x + 2); ++x)
+            {
+                if (std::abs((y - from.y) * (x - from.x)) == 2 && color_at(Coord(x, y)) != color_at(from))
+                    moves.emplace_back(Coord(x, y));
+            }
+        }
+    } break;
+    case 'k': case 'K':
+    {
+        for (int y = std::max(0, from.y - 1); y <= std::min(7, from.y + 1); ++y)
+        {
+            for (int x = std::max(0, from.x - 1); x <= std::min(7, from.x + 1); ++x)
+            {
+                if (color_at(Coord(x, y)) != color_at(from))
+                    moves.emplace_back(Coord(x, y));
+            }
+        }
+    } break;
     }
 
     return moves;
