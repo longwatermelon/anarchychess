@@ -51,6 +51,7 @@ public:
 
     bool move(Coord from, Coord to);
 
+    void select(Coord c);
     void set_tile_size(float size);
 
 private:

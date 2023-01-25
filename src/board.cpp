@@ -5,7 +5,7 @@
 #include <SDL2/SDL_image.h>
 
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
-    : m_selected(4, 1)
+    : m_selected(-1, -1)
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -76,6 +76,11 @@ bool Board::move(Coord from, Coord to)
         return false;
 
     return true;
+}
+
+void Board::select(Coord c)
+{
+    m_selected = c;
 }
 
 void Board::set_tile_size(float size)

@@ -17,6 +17,10 @@ void Prog::mainloop()
     while (m_running)
     {
         SDL_GetWindowSize(m_win, &wx, &wy);
+        float tile_size = std::min(wx, wy) / 8.f;
+        SDL_FPoint top_left = wx > wy ?
+                SDL_FPoint{ (wx - tile_size * 8.f) / 2.f, 0.f } :
+                SDL_FPoint{ 0.f, (wy - tile_size * 8.f) / 2.f };
 
         while (SDL_PollEvent(&evt))
         {
@@ -25,17 +29,22 @@ void Prog::mainloop()
             case SDL_QUIT:
                 m_running = false;
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+            {
+                int mx, my;
+                SDL_GetMouseState(&mx, &my);
+
+                int x = (mx - top_left.x) / tile_size;
+                int y = (my - top_left.y) / tile_size;
+                m_board.select(Coord(x, y));
+            } break;
             }
         }
 
         SDL_RenderClear(m_rend);
 
-        float tile_size = std::min(wx, wy) / 8.f;
         m_board.set_tile_size(tile_size);
-        m_board.render(m_rend,
-            wx > wy ?
-                SDL_FPoint{ (wx - tile_size * 8.f) / 2.f, 0.f } :
-                SDL_FPoint{ 0.f, (wy - tile_size * 8.f) / 2.f });
+        m_board.render(m_rend, top_left);
 
         SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
         SDL_RenderPresent(m_rend);
