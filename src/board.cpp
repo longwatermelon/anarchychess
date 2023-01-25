@@ -125,6 +125,9 @@ bool Board::move(Coord from, Coord to)
 
 void Board::select(Coord c)
 {
+    if (m_animate)
+        return;
+
     std::vector<Coord> moves = get_valid_moves(m_selected);
 
     if (std::find(moves.begin(), moves.end(), c) != moves.end())
