@@ -1,4 +1,5 @@
 #pragma once
+#include "board.h"
 #include <SDL2/SDL.h>
 
 class Prog
@@ -13,5 +14,7 @@ private:
     bool m_running{ true };
     SDL_Window *m_win{ nullptr };
     SDL_Renderer *m_rend{ nullptr };
+
+    Board m_board;
 };
 
