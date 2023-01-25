@@ -5,7 +5,7 @@
 #include <SDL2/SDL_image.h>
 
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
-    : m_selected(4, 6)
+    : m_selected(4, 1)
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -87,6 +87,10 @@ std::vector<Coord> Board::get_valid_moves(Coord from) const
 {
     std::vector<Coord> moves;
 
+    auto pawn_capture = [this, from](Coord c){
+        return c.valid() && at(c) != '.' && color_at(c) != color_at(from);
+    };
+
     Coord c = from;
     switch (at(from))
     {
@@ -102,8 +106,37 @@ std::vector<Coord> Board::get_valid_moves(Coord from) const
                 --c.y;
                 if (c.valid() && at(c) == '.')
                     moves.emplace_back(c);
+                ++c.y;
             }
         }
+
+        --c.x;
+        if (pawn_capture(c)) moves.emplace_back(c);
+
+        c.x += 2;
+        if (pawn_capture(c)) moves.emplace_back(c);
+    } break;
+    case 'p':
+    {
+        ++c.y;
+        if (c.valid() && at(c) == '.')
+        {
+            moves.emplace_back(c);
+
+            if (from.y == 1)
+            {
+                ++c.y;
+                if (c.valid() && at(c) == '.')
+                    moves.emplace_back(c);
+                --c.y;
+            }
+        }
+
+        --c.x;
+        if (pawn_capture(c)) moves.emplace_back(c);
+
+        c.x += 2;
+        if (pawn_capture(c)) moves.emplace_back(c);
     } break;
     }
 
