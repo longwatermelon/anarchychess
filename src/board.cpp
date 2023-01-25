@@ -1,9 +1,11 @@
 #include "board.h"
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 #include <SDL2/SDL_image.h>
 
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
+    : m_selected(4, 6)
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -37,6 +39,8 @@ Board::~Board()
 
 void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 {
+    std::vector<Coord> moves = get_valid_moves(m_selected);
+
     for (int y = 0; y < 8; ++y)
     {
         for (int x = 0; x < 8; ++x)
@@ -53,8 +57,14 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
             SDL_RenderFillRectF(rend, &rtile);
 
             if (m_board[y][x] != '.')
-            {
                 SDL_RenderCopyF(rend, m_textures[m_board[y][x]], nullptr, &rtile);
+
+            if (std::find(moves.begin(), moves.end(), Coord(x, y)) != moves.end())
+            {
+                SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(rend, 0, 255, 0, 100);
+                SDL_RenderFillRectF(rend, &rtile);
+                SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
             }
         }
     }
@@ -71,5 +81,65 @@ bool Board::move(Coord from, Coord to)
 void Board::set_tile_size(float size)
 {
     m_tile_size = size;
+}
+
+std::vector<Coord> Board::get_valid_moves(Coord from) const
+{
+    std::vector<Coord> moves;
+
+    Coord c = from;
+    switch (at(from))
+    {
+    case 'P':
+    {
+        --c.y;
+        if (c.valid() && at(c) == '.')
+        {
+            moves.emplace_back(c);
+
+            if (from.y == 6)
+            {
+                --c.y;
+                if (c.valid() && at(c) == '.')
+                    moves.emplace_back(c);
+            }
+        }
+    } break;
+    }
+
+    return moves;
+}
+
+void Board::scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves) const
+{
+    Coord c = from;
+    while (c.valid())
+    {
+        if (color_at(c) != Color::NONE)
+        {
+            if (color_at(c) != color_at(from))
+                moves.emplace_back(c);
+
+            break;
+        }
+
+        moves.emplace_back(c);
+        c.x += dx;
+        c.y += dy;
+    }
+}
+
+char Board::at(Coord c) const
+{
+    if (!c.valid()) return '.';
+    return m_board[c.y][c.x];
+}
+
+Color Board::color_at(Coord c) const
+{
+    if (at(c) == '.')
+        return Color::NONE;
+
+    return at(c) < 'a' ? Color::WHITE : Color::BLACK;
 }
 

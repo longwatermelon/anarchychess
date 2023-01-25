@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <SDL2/SDL.h>
 
@@ -26,10 +27,16 @@ struct Coord
     {
         return x == other.x && y == other.y;
     }
+
+    bool operator!=(const Coord &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 enum class Color
 {
+    NONE,
     WHITE,
     BLACK
 };
@@ -47,9 +54,18 @@ public:
     void set_tile_size(float size);
 
 private:
+    std::vector<Coord> get_valid_moves(Coord from) const;
+    void scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves) const;
+
+    char at(Coord c) const;
+    Color color_at(Coord c) const;
+
+private:
     std::array<std::array<char, 8>, 8> m_board;
     float m_tile_size{ 0.f };
 
     std::unordered_map<char, SDL_Texture*> m_textures;
+
+    Coord m_selected;
 };
 
