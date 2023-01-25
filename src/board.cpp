@@ -143,6 +143,29 @@ std::vector<Coord> Board::get_valid_moves(Coord from) const
         c.x += 2;
         if (pawn_capture(c)) moves.emplace_back(c);
     } break;
+    case 'r': case 'R':
+        scan_valid(from, 1, 0, moves);
+        scan_valid(from, 0, 1, moves);
+        scan_valid(from, -1, 0, moves);
+        scan_valid(from, 0, -1, moves);
+        break;
+    case 'b': case 'B':
+        scan_valid(from, 1, 1, moves);
+        scan_valid(from, -1, -1, moves);
+        scan_valid(from, 1, -1, moves);
+        scan_valid(from, -1, 1, moves);
+        break;
+    case 'q': case 'Q':
+        scan_valid(from, 1, 1, moves);
+        scan_valid(from, -1, -1, moves);
+        scan_valid(from, 1, -1, moves);
+        scan_valid(from, -1, 1, moves);
+
+        scan_valid(from, 1, 0, moves);
+        scan_valid(from, 0, 1, moves);
+        scan_valid(from, -1, 0, moves);
+        scan_valid(from, 0, -1, moves);
+        break;
     }
 
     return moves;
@@ -151,6 +174,8 @@ std::vector<Coord> Board::get_valid_moves(Coord from) const
 void Board::scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves) const
 {
     Coord c = from;
+    c.x += dx;
+    c.y += dy;
     while (c.valid())
     {
         if (color_at(c) != Color::NONE)
