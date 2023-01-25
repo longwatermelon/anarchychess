@@ -68,5 +68,10 @@ private:
     std::unordered_map<char, SDL_Texture*> m_textures;
 
     Coord m_selected;
+
+    bool m_animate{ false };
+    Coord m_animate_from, m_animate_to;
+    char m_animate_piece;
+    Uint32 m_animate_begin;
 };
 

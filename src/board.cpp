@@ -2,10 +2,11 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <iostream>
 #include <SDL2/SDL_image.h>
 
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
-    : m_selected(-1, -1)
+    : m_selected(-1, -1), m_animate_from(-1, -1), m_animate_to(-1, -1)
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -56,9 +57,6 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 
             SDL_RenderFillRectF(rend, &rtile);
 
-            if (m_board[y][x] != '.')
-                SDL_RenderCopyF(rend, m_textures[m_board[y][x]], nullptr, &rtile);
-
             if (std::find(moves.begin(), moves.end(), Coord(x, y)) != moves.end())
             {
                 SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
@@ -68,19 +66,71 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
             }
         }
     }
+
+    for (int y = 0; y < 8; ++y)
+    {
+        for (int x = 0; x < 8; ++x)
+        {
+            if (m_board[y][x] != '.')
+            {
+                SDL_FRect rpiece = { top_left.x + x * m_tile_size,
+                                     top_left.y + y * m_tile_size,
+                                     m_tile_size, m_tile_size };
+;
+                if (m_animate)
+                {
+                    if (m_animate_to == Coord(x, y))
+                    {
+                        float percent = (float)(SDL_GetTicks() - m_animate_begin) / 150.f;
+                        SDL_FPoint from = {
+                            top_left.x + (m_animate_from.x * m_tile_size),
+                            top_left.y + (m_animate_from.y * m_tile_size)
+                        };
+                        SDL_FPoint to = {
+                            top_left.x + (m_animate_to.x * m_tile_size),
+                            top_left.y + (m_animate_to.y * m_tile_size)
+                        };
+
+                        rpiece.x = from.x + percent * (to.x - from.x);
+                        rpiece.y = from.y + percent * (to.y - from.y);
+                    }
+
+                    if (SDL_GetTicks() - m_animate_begin > 150)
+                        m_animate = false;
+                }
+
+                SDL_RenderCopyF(rend, m_textures[m_board[y][x]], nullptr, &rpiece);
+            }
+        }
+    }
 }
 
 bool Board::move(Coord from, Coord to)
 {
-    if (from == to)
+    if (from == to || !from.valid() || !to.valid())
         return false;
+
+    m_board[to.y][to.x] = at(from);
+    m_board[from.y][from.x] = '.';
+
+    m_animate = true;
+    m_animate_from = from;
+    m_animate_to = to;
+    m_animate_piece = at(to);
+    m_animate_begin = SDL_GetTicks();
+    m_selected = Coord(-1, -1);
 
     return true;
 }
 
 void Board::select(Coord c)
 {
-    m_selected = c;
+    std::vector<Coord> moves = get_valid_moves(m_selected);
+
+    if (std::find(moves.begin(), moves.end(), c) != moves.end())
+        move(m_selected, c);
+    else
+        m_selected = c;
 }
 
 void Board::set_tile_size(float size)
