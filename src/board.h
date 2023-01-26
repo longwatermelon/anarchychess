@@ -41,7 +41,7 @@ struct Move
     Coord to;
 
     bool special{ false };
-    std::function<void(Coord)> special_move_fn;
+    std::function<void(Move)> special_move_fn;
 
     Move(Coord from, Coord to)
         : from(from), to(to) {}
@@ -56,7 +56,7 @@ struct SpecialMove
 {
     std::string name;
     std::function<bool(Coord, Coord&)> cond;
-    std::function<void(Coord)> move_fn;
+    std::function<void(Move)> move_fn;
 };
 
 enum class Color

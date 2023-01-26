@@ -42,7 +42,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
             return (c == Coord(4, 7) && at(Coord(7, 7)) == 'R') &&
                    (at(Coord(5, 7)) == '.' && at(Coord(6, 7)) == '.');
         },
-        .move_fn = [this](Coord c){
+        .move_fn = [this](Move m){
             move(Move(Coord(4, 7), Coord(6, 7)));
             move(Move(Coord(7, 7), Coord(5, 7)));
         }
@@ -55,7 +55,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
             return (c == Coord(4, 0) && at(Coord(7, 0)) == 'r') &&
                    (at(Coord(5, 0)) == '.' && at(Coord(6, 0)) == '.');
         },
-        .move_fn = [this](Coord c){
+        .move_fn = [this](Move m){
             move(Move(Coord(4, 0), Coord(6, 0)));
             move(Move(Coord(7, 0), Coord(5, 0)));
         }
@@ -69,7 +69,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                    (at(Coord(1, 7)) == '.' && at(Coord(2, 7)) == '.' &&
                     at(Coord(3, 7)) == '.');
         },
-        .move_fn = [this](Coord c){
+        .move_fn = [this](Move m){
             move(Move(Coord(4, 7), Coord(2, 7)));
             move(Move(Coord(0, 7), Coord(3, 7)));
         }
@@ -83,9 +83,69 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                    (at(Coord(1, 0)) == '.' && at(Coord(2, 0)) == '.' &&
                     at(Coord(3, 0)) == '.');
         },
-        .move_fn = [this](Coord c){
+        .move_fn = [this](Move m){
             move(Move(Coord(4, 0), Coord(2, 0)));
             move(Move(Coord(0, 0), Coord(3, 0)));
+        }
+    });
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "White knook create",
+        .cond = [this](Coord c, Coord &disp){
+            if (at(c) != 'N')
+                return false;
+
+            for (int y = std::max(0, c.y - 2); y <= std::min(7, c.y + 2); ++y)
+            {
+                for (int x = std::max(0, c.x - 2); x <= std::min(7, c.x + 2); ++x)
+                {
+                    if (std::abs((y - c.y) * (x - c.x)) == 2 && color_at(Coord(x, y)) == color_at(c))
+                    {
+                        if (at(Coord(x, y)) == 'R')
+                        {
+                            disp = Coord(x, y);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move(m);
+            m_board[m.to.y][m.to.x] = 'O';
+        }
+    });
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Black knook create",
+        .cond = [this](Coord c, Coord &disp){
+            if (at(c) != 'n')
+                return false;
+
+            for (int y = std::max(0, c.y - 2); y <= std::min(7, c.y + 2); ++y)
+            {
+                for (int x = std::max(0, c.x - 2); x <= std::min(7, c.x + 2); ++x)
+                {
+                    if (std::abs((y - c.y) * (x - c.x)) == 2 && color_at(Coord(x, y)) == color_at(c))
+                    {
+                        if (at(Coord(x, y)) == 'r')
+                        {
+                            disp = Coord(x, y);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move(m);
+            m_board[m.to.y][m.to.x] = 'o';
         }
     });
 }
@@ -169,7 +229,7 @@ bool Board::move(Move move)
 {
     if (move.special)
     {
-        move.special_move_fn(move.from);
+        move.special_move_fn(move);
     }
     else
     {
