@@ -34,11 +34,27 @@ struct Coord
     }
 };
 
+struct Move
+{
+    Coord from;
+    Coord to;
+
+    Move(Coord from, Coord to)
+        : from(from), to(to) {}
+};
+
 enum class Color
 {
     NONE,
     WHITE,
     BLACK
+};
+
+struct Animation
+{
+    SDL_Texture *tex;
+    Coord from, to;
+    Uint32 time_ms, begin;
 };
 
 class Board
@@ -49,7 +65,7 @@ public:
 
     void render(SDL_Renderer *rend, SDL_FPoint top_left);
 
-    bool move(Coord from, Coord to);
+    bool move(Move move);
 
     bool detect_check(Color c);
 
@@ -72,9 +88,6 @@ private:
 
     Coord m_selected;
 
-    bool m_animate{ false };
-    Coord m_animate_from, m_animate_to;
-    char m_animate_piece;
-    Uint32 m_animate_begin;
+    std::vector<Animation> m_animations;
 };
 
