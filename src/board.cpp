@@ -348,6 +348,15 @@ void Board::select(Coord c)
     if (!m_animations.empty())
         return;
 
+    if (m_selected == Coord(-1, -1) && at(c) == '.')
+    {
+        m_selected = Coord(-1, -1);
+        return;
+    }
+
+    if (m_selected == Coord(-1, -1) && color_at(c) != Color::NONE && color_at(c) != m_turn)
+        return;
+
     std::vector<Move> moves = get_valid_moves(m_selected, false);
 
     for (const auto &m : moves)
@@ -356,11 +365,16 @@ void Board::select(Coord c)
         {
             move(m);
             m_selected = Coord(-1, -1);
+            m_turn = m_turn == Color::WHITE ? Color::BLACK : Color::WHITE;
             return;
         }
     }
 
-    m_selected = c;
+    if (m_selected == Coord(-1, -1) || color_at(c) == m_turn)
+        m_selected = c;
+
+    if (at(c) == '.')
+        m_selected = Coord(-1, -1);
 }
 
 void Board::set_tile_size(float size)

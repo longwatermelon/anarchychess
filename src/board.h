@@ -108,5 +108,6 @@ private:
     std::vector<SpecialMove> m_special_moves;
 
     Move m_last_move;
+    Color m_turn{ Color::WHITE };
 };
 
