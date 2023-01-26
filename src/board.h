@@ -106,5 +106,7 @@ private:
 
     std::vector<Animation> m_animations;
     std::vector<SpecialMove> m_special_moves;
+
+    Move m_last_move;
 };
 

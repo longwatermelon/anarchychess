@@ -6,7 +6,7 @@
 #include <SDL2/SDL_image.h>
 
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
-    : m_selected(-1, -1)
+    : m_selected(-1, -1), m_last_move(Coord(-1, -1), Coord(-1, -1))
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -221,13 +221,19 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 
             SDL_RenderFillRectF(rend, &rtile);
 
+            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+            if (Coord(x, y) == m_last_move.from || Coord(x, y) == m_last_move.to)
+            {
+                SDL_SetRenderDrawColor(rend, 255, 255, 0, 100);
+                SDL_RenderFillRectF(rend, &rtile);
+            }
+
             if (std::find(moves.begin(), moves.end(), Move(m_selected, Coord(x, y))) != moves.end())
             {
-                SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
                 SDL_SetRenderDrawColor(rend, 0, 255, 0, 100);
                 SDL_RenderFillRectF(rend, &rtile);
-                SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
             }
+            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
         }
     }
 
@@ -291,6 +297,8 @@ bool Board::move(Move move)
             .time_ms = 150,
             .begin = SDL_GetTicks()
         });
+
+        m_last_move = move;
     }
 
     return true;
