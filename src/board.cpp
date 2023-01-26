@@ -45,6 +45,47 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
             move(Move(Coord(7, 7), Coord(5, 7)));
         }
     });
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Black short castle",
+        .display_to = Coord(6, 0),
+        .cond = [this](Coord c){
+            return (c == Coord(4, 0) && at(Coord(7, 0)) == 'r') &&
+                   (at(Coord(5, 0)) == '.' && at(Coord(6, 0)) == '.');
+        },
+        .move_fn = [this](Coord c){
+            move(Move(Coord(4, 0), Coord(6, 0)));
+            move(Move(Coord(7, 0), Coord(5, 0)));
+        }
+    });
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "White long castle",
+        .display_to = Coord(2, 7),
+        .cond = [this](Coord c){
+            return (c == Coord(4, 7) && at(Coord(0, 7)) == 'R') &&
+                   (at(Coord(1, 7)) == '.' && at(Coord(2, 7)) == '.' &&
+                    at(Coord(3, 7)) == '.');
+        },
+        .move_fn = [this](Coord c){
+            move(Move(Coord(4, 7), Coord(2, 7)));
+            move(Move(Coord(0, 7), Coord(3, 7)));
+        }
+    });
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Black long castle",
+        .display_to = Coord(2, 0),
+        .cond = [this](Coord c){
+            return (c == Coord(4, 0) && at(Coord(0, 0)) == 'r') &&
+                   (at(Coord(1, 0)) == '.' && at(Coord(2, 0)) == '.' &&
+                    at(Coord(3, 0)) == '.');
+        },
+        .move_fn = [this](Coord c){
+            move(Move(Coord(4, 0), Coord(2, 0)));
+            move(Move(Coord(0, 0), Coord(3, 0)));
+        }
+    });
 }
 
 Board::~Board()
@@ -126,7 +167,6 @@ bool Board::move(Move move)
 {
     if (move.special)
     {
-        printf("here\n");
         move.special_move_fn(move.from);
     }
     else
