@@ -41,6 +41,11 @@ struct Move
 
     Move(Coord from, Coord to)
         : from(from), to(to) {}
+
+    bool operator==(const Move &other) const
+    {
+        return from == other.from && to == other.to;
+    }
 };
 
 enum class Color
@@ -73,9 +78,9 @@ public:
     void set_tile_size(float size);
 
 private:
-    std::vector<Coord> get_valid_moves(Coord from, bool raw);
-    void scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves, bool raw);
-    void add_valid_move(std::vector<Coord> &moves, Coord from, Coord to, bool raw);
+    std::vector<Move> get_valid_moves(Coord from, bool raw);
+    void scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw);
+    void add_valid_move(std::vector<Move> &moves, Move move, bool raw);
 
     char at(Coord c) const;
     Color color_at(Coord c) const;

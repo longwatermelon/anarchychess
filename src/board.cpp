@@ -40,7 +40,7 @@ Board::~Board()
 
 void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 {
-    std::vector<Coord> moves = get_valid_moves(m_selected, false);
+    std::vector<Move> moves = get_valid_moves(m_selected, false);
 
     for (int y = 0; y < 8; ++y)
     {
@@ -57,7 +57,7 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 
             SDL_RenderFillRectF(rend, &rtile);
 
-            if (std::find(moves.begin(), moves.end(), Coord(x, y)) != moves.end())
+            if (std::find(moves.begin(), moves.end(), Move(m_selected, Coord(x, y))) != moves.end())
             {
                 SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
                 SDL_SetRenderDrawColor(rend, 0, 255, 0, 100);
@@ -152,9 +152,13 @@ breakloop:
             Coord coord(x, y);
             if (at(coord) != '.' && color_at(coord) != c)
             {
-                std::vector<Coord> moves = get_valid_moves(coord, true);
-                if (std::find(moves.begin(), moves.end(), king) != moves.end())
-                    return true;
+                std::vector<Move> moves = get_valid_moves(coord, true);
+
+                for (const auto &move : moves)
+                {
+                    if (move.to == king)
+                        return true;
+                }
             }
         }
     }
@@ -167,12 +171,18 @@ void Board::select(Coord c)
     if (!m_animations.empty())
         return;
 
-    std::vector<Coord> moves = get_valid_moves(m_selected, false);
+    std::vector<Move> moves = get_valid_moves(m_selected, false);
 
-    if (std::find(moves.begin(), moves.end(), c) != moves.end())
-        move(Move(m_selected, c));
-    else
-        m_selected = c;
+    for (const auto &m : moves)
+    {
+        if (c == m.to)
+        {
+            move(Move(m_selected, c));
+            return;
+        }
+    }
+
+    m_selected = c;
 }
 
 void Board::set_tile_size(float size)
@@ -180,9 +190,9 @@ void Board::set_tile_size(float size)
     m_tile_size = size;
 }
 
-std::vector<Coord> Board::get_valid_moves(Coord from, bool raw)
+std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
 {
-    std::vector<Coord> moves;
+    std::vector<Move> moves;
 
     auto pawn_capture = [this, from](Coord c){
         return c.valid() && at(c) != '.' && color_at(c) != color_at(from);
@@ -196,44 +206,44 @@ std::vector<Coord> Board::get_valid_moves(Coord from, bool raw)
         --c.y;
         if (c.valid() && at(c) == '.')
         {
-            add_valid_move(moves, from, c, raw);
+            add_valid_move(moves, Move(from, c), raw);
 
             if (from.y == 6)
             {
                 --c.y;
                 if (c.valid() && at(c) == '.')
-                    add_valid_move(moves, from, c, raw);
+                    add_valid_move(moves, Move(from, c), raw);
                 ++c.y;
             }
         }
 
         --c.x;
-        if (pawn_capture(c)) add_valid_move(moves, from, c, raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
 
         c.x += 2;
-        if (pawn_capture(c)) add_valid_move(moves, from, c, raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
     } break;
     case 'p':
     {
         ++c.y;
         if (c.valid() && at(c) == '.')
         {
-            add_valid_move(moves, from, c, raw);
+            add_valid_move(moves, Move(from, c), raw);
 
             if (from.y == 1)
             {
                 ++c.y;
                 if (c.valid() && at(c) == '.')
-                    add_valid_move(moves, from, c, raw);
+                    add_valid_move(moves, Move(from, c), raw);
                 --c.y;
             }
         }
 
         --c.x;
-        if (pawn_capture(c)) add_valid_move(moves, from, c, raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
 
         c.x += 2;
-        if (pawn_capture(c)) add_valid_move(moves, from, c, raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
     } break;
     case 'r': case 'R':
         scan_valid(from, 1, 0, moves, raw);
@@ -265,7 +275,7 @@ std::vector<Coord> Board::get_valid_moves(Coord from, bool raw)
             for (int x = std::max(0, from.x - 2); x <= std::min(7, from.x + 2); ++x)
             {
                 if (std::abs((y - from.y) * (x - from.x)) == 2 && color_at(Coord(x, y)) != color_at(from))
-                    add_valid_move(moves, from, Coord(x, y), raw);
+                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
             }
         }
     } break;
@@ -276,7 +286,7 @@ std::vector<Coord> Board::get_valid_moves(Coord from, bool raw)
             for (int x = std::max(0, from.x - 1); x <= std::min(7, from.x + 1); ++x)
             {
                 if (color_at(Coord(x, y)) != color_at(from))
-                    add_valid_move(moves, from, Coord(x, y), raw);
+                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
             }
         }
     } break;
@@ -285,7 +295,7 @@ std::vector<Coord> Board::get_valid_moves(Coord from, bool raw)
     return moves;
 }
 
-void Board::scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves, bool raw)
+void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw)
 {
     Coord c = from;
     c.x += dx;
@@ -295,34 +305,34 @@ void Board::scan_valid(Coord from, int dx, int dy, std::vector<Coord> &moves, bo
         if (color_at(c) != Color::NONE)
         {
             if (color_at(c) != color_at(from))
-                add_valid_move(moves, from, c, raw);
+                add_valid_move(moves, Move(from, c), raw);
 
             break;
         }
 
-        add_valid_move(moves, from, c, raw);
+        add_valid_move(moves, Move(from, c), raw);
         c.x += dx;
         c.y += dy;
     }
 }
 
-void Board::add_valid_move(std::vector<Coord> &moves, Coord from, Coord to, bool raw)
+void Board::add_valid_move(std::vector<Move> &moves, Move move, bool raw)
 {
     if (raw)
     {
-        moves.emplace_back(to);
+        moves.emplace_back(move);
         return;
     }
 
-    char tmp = at(to);
-    m_board[to.y][to.x] = at(from);
-    m_board[from.y][from.x] = '.';
+    char tmp = at(move.to);
+    m_board[move.to.y][move.to.x] = at(move.from);
+    m_board[move.from.y][move.from.x] = '.';
 
-    if (!detect_check(color_at(to)))
-        moves.emplace_back(to);
+    if (!detect_check(color_at(move.to)))
+        moves.emplace_back(move);
 
-    m_board[from.y][from.x] = at(to);
-    m_board[to.y][to.x] = tmp;
+    m_board[move.from.y][move.from.x] = at(move.to);
+    m_board[move.to.y][move.to.x] = tmp;
 }
 
 char Board::at(Coord c) const
