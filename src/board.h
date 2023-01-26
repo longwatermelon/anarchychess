@@ -55,8 +55,7 @@ struct Move
 struct SpecialMove
 {
     std::string name;
-    Coord display_to;
-    std::function<bool(Coord)> cond;
+    std::function<bool(Coord, Coord&)> cond;
     std::function<void(Coord)> move_fn;
 };
 

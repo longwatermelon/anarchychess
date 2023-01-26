@@ -37,8 +37,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
 
     m_special_moves.emplace_back(SpecialMove{
         .name = "White short castle",
-        .display_to = Coord(6, 7),
-        .cond = [this](Coord c){
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(6, 7);
             return (c == Coord(4, 7) && at(Coord(7, 7)) == 'R') &&
                    (at(Coord(5, 7)) == '.' && at(Coord(6, 7)) == '.');
         },
@@ -50,8 +50,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
 
     m_special_moves.emplace_back(SpecialMove{
         .name = "Black short castle",
-        .display_to = Coord(6, 0),
-        .cond = [this](Coord c){
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(6, 0);
             return (c == Coord(4, 0) && at(Coord(7, 0)) == 'r') &&
                    (at(Coord(5, 0)) == '.' && at(Coord(6, 0)) == '.');
         },
@@ -63,8 +63,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
 
     m_special_moves.emplace_back(SpecialMove{
         .name = "White long castle",
-        .display_to = Coord(2, 7),
-        .cond = [this](Coord c){
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(2, 7);
             return (c == Coord(4, 7) && at(Coord(0, 7)) == 'R') &&
                    (at(Coord(1, 7)) == '.' && at(Coord(2, 7)) == '.' &&
                     at(Coord(3, 7)) == '.');
@@ -77,8 +77,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
 
     m_special_moves.emplace_back(SpecialMove{
         .name = "Black long castle",
-        .display_to = Coord(2, 0),
-        .cond = [this](Coord c){
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(2, 0);
             return (c == Coord(4, 0) && at(Coord(0, 0)) == 'r') &&
                    (at(Coord(1, 0)) == '.' && at(Coord(2, 0)) == '.' &&
                     at(Coord(3, 0)) == '.');
@@ -372,9 +372,10 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
 
     for (const auto &special : m_special_moves)
     {
-        if (special.cond(from))
+        Coord disp(-1, -1);
+        if (special.cond(from, disp))
         {
-            Move m(from, special.display_to);
+            Move m(from, disp);
             m.special = true;
             m.special_move_fn = special.move_fn;
             moves.emplace_back(m);
