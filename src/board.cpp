@@ -32,6 +32,19 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     m_textures['Q'] = IMG_LoadTexture(rend, "res/w-queen.png");
     m_textures['K'] = IMG_LoadTexture(rend, "res/w-king.png");
     m_textures['P'] = IMG_LoadTexture(rend, "res/w-pawn.png");
+
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "White short castle",
+        .display_to = Coord(6, 7),
+        .cond = [this](Coord c){
+            return (c == Coord(4, 7) && at(Coord(7, 7)) == 'R') &&
+                   (at(Coord(5, 7)) == '.' && at(Coord(6, 7)) == '.');
+        },
+        .move_fn = [this](Coord c){
+            move(Move(Coord(4, 7), Coord(6, 7)));
+            move(Move(Coord(7, 7), Coord(5, 7)));
+        }
+    });
 }
 
 Board::~Board()
@@ -111,18 +124,24 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 
 bool Board::move(Move move)
 {
-    m_board[move.to.y][move.to.x] = at(move.from);
-    m_board[move.from.y][move.from.x] = '.';
+    if (move.special)
+    {
+        printf("here\n");
+        move.special_move_fn(move.from);
+    }
+    else
+    {
+        m_board[move.to.y][move.to.x] = at(move.from);
+        m_board[move.from.y][move.from.x] = '.';
 
-    m_animations.emplace_back(Animation{
-        .tex = m_textures[at(move.to)],
-        .from = move.from,
-        .to = move.to,
-        .time_ms = 150,
-        .begin = SDL_GetTicks()
-    });
-
-    m_selected = Coord(-1, -1);
+        m_animations.emplace_back(Animation{
+            .tex = m_textures[at(move.to)],
+            .from = move.from,
+            .to = move.to,
+            .time_ms = 150,
+            .begin = SDL_GetTicks()
+        });
+    }
 
     return true;
 }
@@ -177,7 +196,8 @@ void Board::select(Coord c)
     {
         if (c == m.to)
         {
-            move(Move(m_selected, c));
+            move(m);
+            m_selected = Coord(-1, -1);
             return;
         }
     }
@@ -290,6 +310,17 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             }
         }
     } break;
+    }
+
+    for (const auto &special : m_special_moves)
+    {
+        if (special.cond(from))
+        {
+            Move m(from, special.display_to);
+            m.special = true;
+            m.special_move_fn = special.move_fn;
+            moves.emplace_back(m);
+        }
     }
 
     return moves;

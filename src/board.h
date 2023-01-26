@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include <SDL2/SDL.h>
 
 struct Coord
@@ -39,6 +40,9 @@ struct Move
     Coord from;
     Coord to;
 
+    bool special{ false };
+    std::function<void(Coord)> special_move_fn;
+
     Move(Coord from, Coord to)
         : from(from), to(to) {}
 
@@ -46,6 +50,14 @@ struct Move
     {
         return from == other.from && to == other.to;
     }
+};
+
+struct SpecialMove
+{
+    std::string name;
+    Coord display_to;
+    std::function<bool(Coord)> cond;
+    std::function<void(Coord)> move_fn;
 };
 
 enum class Color
@@ -94,5 +106,6 @@ private:
     Coord m_selected;
 
     std::vector<Animation> m_animations;
+    std::vector<SpecialMove> m_special_moves;
 };
 
