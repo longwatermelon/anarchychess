@@ -25,6 +25,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     m_textures['q'] = IMG_LoadTexture(rend, "res/b-queen.png");
     m_textures['k'] = IMG_LoadTexture(rend, "res/b-king.png");
     m_textures['p'] = IMG_LoadTexture(rend, "res/b-pawn.png");
+    m_textures['o'] = IMG_LoadTexture(rend, "res/b-knook.png");
 
     m_textures['R'] = IMG_LoadTexture(rend, "res/w-rook.png");
     m_textures['N'] = IMG_LoadTexture(rend, "res/w-knight.png");
@@ -32,6 +33,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     m_textures['Q'] = IMG_LoadTexture(rend, "res/w-queen.png");
     m_textures['K'] = IMG_LoadTexture(rend, "res/w-king.png");
     m_textures['P'] = IMG_LoadTexture(rend, "res/w-pawn.png");
+    m_textures['O'] = IMG_LoadTexture(rend, "res/w-knook.png");
 
     m_special_moves.emplace_back(SpecialMove{
         .name = "White short castle",
@@ -350,6 +352,22 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             }
         }
     } break;
+    case 'o': case 'O':
+    {
+        scan_valid(from, 1, 0, moves, raw, 2);
+        scan_valid(from, 0, 1, moves, raw, 2);
+        scan_valid(from, -1, 0, moves, raw, 2);
+        scan_valid(from, 0, -1, moves, raw, 2);
+
+        for (int y = std::max(0, from.y - 2); y <= std::min(7, from.y + 2); ++y)
+        {
+            for (int x = std::max(0, from.x - 2); x <= std::min(7, from.x + 2); ++x)
+            {
+                if (std::abs((y - from.y) * (x - from.x)) == 2 && color_at(Coord(x, y)) != color_at(from))
+                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
+            }
+        }
+    } break;
     }
 
     for (const auto &special : m_special_moves)
@@ -371,7 +389,6 @@ void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, boo
     Coord c = from;
     c.x += dx;
     c.y += dy;
-    --n;
     while (c.valid())
     {
         if (color_at(c) != Color::NONE)
