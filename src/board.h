@@ -91,7 +91,7 @@ public:
 
 private:
     std::vector<Move> get_valid_moves(Coord from, bool raw);
-    void scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw);
+    void scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw, int n);
     void add_valid_move(std::vector<Move> &moves, Move move, bool raw);
 
     char at(Coord c) const;

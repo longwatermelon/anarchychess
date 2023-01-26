@@ -306,27 +306,27 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
     } break;
     case 'r': case 'R':
-        scan_valid(from, 1, 0, moves, raw);
-        scan_valid(from, 0, 1, moves, raw);
-        scan_valid(from, -1, 0, moves, raw);
-        scan_valid(from, 0, -1, moves, raw);
+        scan_valid(from, 1, 0, moves, raw, 8);
+        scan_valid(from, 0, 1, moves, raw, 8);
+        scan_valid(from, -1, 0, moves, raw, 8);
+        scan_valid(from, 0, -1, moves, raw, 8);
         break;
     case 'b': case 'B':
-        scan_valid(from, 1, 1, moves, raw);
-        scan_valid(from, -1, -1, moves, raw);
-        scan_valid(from, 1, -1, moves, raw);
-        scan_valid(from, -1, 1, moves, raw);
+        scan_valid(from, 1, 1, moves, raw, 8);
+        scan_valid(from, -1, -1, moves, raw, 8);
+        scan_valid(from, 1, -1, moves, raw, 8);
+        scan_valid(from, -1, 1, moves, raw, 8);
         break;
     case 'q': case 'Q':
-        scan_valid(from, 1, 1, moves, raw);
-        scan_valid(from, -1, -1, moves, raw);
-        scan_valid(from, 1, -1, moves, raw);
-        scan_valid(from, -1, 1, moves, raw);
+        scan_valid(from, 1, 1, moves, raw, 8);
+        scan_valid(from, -1, -1, moves, raw, 8);
+        scan_valid(from, 1, -1, moves, raw, 8);
+        scan_valid(from, -1, 1, moves, raw, 8);
 
-        scan_valid(from, 1, 0, moves, raw);
-        scan_valid(from, 0, 1, moves, raw);
-        scan_valid(from, -1, 0, moves, raw);
-        scan_valid(from, 0, -1, moves, raw);
+        scan_valid(from, 1, 0, moves, raw, 8);
+        scan_valid(from, 0, 1, moves, raw, 8);
+        scan_valid(from, -1, 0, moves, raw, 8);
+        scan_valid(from, 0, -1, moves, raw, 8);
         break;
     case 'n': case 'N':
     {
@@ -366,11 +366,12 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
     return moves;
 }
 
-void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw)
+void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw, int n)
 {
     Coord c = from;
     c.x += dx;
     c.y += dy;
+    --n;
     while (c.valid())
     {
         if (color_at(c) != Color::NONE)
@@ -384,6 +385,10 @@ void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, boo
         add_valid_move(moves, Move(from, c), raw);
         c.x += dx;
         c.y += dy;
+        --n;
+
+        if (n <= 0)
+            break;
     }
 }
 
