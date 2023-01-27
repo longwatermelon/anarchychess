@@ -11,6 +11,6 @@ namespace ai
     Move best_move(Board &board);
 
     Move minimax_root(Board &board, int depth);
-    float minimax(Board &board, int depth, Color turn);
+    float minimax(Board &board, int depth, bool maximizing_player);
 }
 

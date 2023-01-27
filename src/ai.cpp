@@ -80,17 +80,17 @@ Move ai::minimax_root(Board &board, int depth)
 {
     std::vector<Move> moves = get_all_moves(board, Color::BLACK);
 
-    float best_eval = 1e5f;
+    float best_eval = -1e5f;
     Move best = moves[rand() % moves.size()];
 
     auto prev_board = board.get_board();
     for (const auto &move : moves)
     {
         board.test_move(move);
-        float move_eval = minimax(board, depth - 1, Color::WHITE);
+        float move_eval = minimax(board, depth - 1, false);
         board.restore_saved_board(prev_board);
 
-        if (move_eval < best_eval)
+        if (move_eval > best_eval)
         {
             best_eval = move_eval;
             best = move;
@@ -100,22 +100,22 @@ Move ai::minimax_root(Board &board, int depth)
     return best;
 }
 
-float ai::minimax(Board &board, int depth, Color turn)
+float ai::minimax(Board &board, int depth, bool maximizing_player)
 {
     if (depth == 0)
-        return eval(board);
+        return -eval(board);
 
-    std::vector<Move> moves = get_all_moves(board, turn);
-    float best_eval = 1e5f * (turn == Color::WHITE ? 1.f : -1.f);
+    std::vector<Move> moves = get_all_moves(board, maximizing_player ? Color::BLACK : Color::WHITE);
+    float best_eval = 1e5f * (maximizing_player ? -1.f : 1.f);
 
     auto prev_board = board.get_board();
     for (const auto &move : moves)
     {
         board.test_move(move);
-        if (turn == Color::WHITE)
-            best_eval = std::min(best_eval, minimax(board, depth - 1, Color::BLACK));
+        if (!maximizing_player)
+            best_eval = std::min(best_eval, minimax(board, depth - 1, !maximizing_player));
         else
-            best_eval = std::max(best_eval, minimax(board, depth - 1, Color::WHITE));
+            best_eval = std::max(best_eval, minimax(board, depth - 1, !maximizing_player));
         board.restore_saved_board(prev_board);
     }
 
