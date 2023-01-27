@@ -405,9 +405,9 @@ void Board::set_tile_size(float size)
     m_tile_size = size;
 }
 
-void Board::save_board_state()
+std::array<std::array<char, 8>, 8> Board::get_board()
 {
-    m_board_saved = m_board;
+    return m_board;
 }
 
 void Board::test_move(Move move)
@@ -416,9 +416,9 @@ void Board::test_move(Move move)
     m_board[move.from.y][move.from.x] = '.';
 }
 
-void Board::restore_saved_board()
+void Board::restore_saved_board(const std::array<std::array<char, 8>, 8> &board)
 {
-    m_board = m_board_saved;
+    m_board = board;
 }
 
 std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
