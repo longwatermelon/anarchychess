@@ -45,12 +45,13 @@ void Prog::mainloop()
         if (m_board.detect_checkmate(Color::BLACK))
         {
             printf("Black is in checkmate\n");
-            break;
         }
-
-        if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
+        else
         {
-            m_board.move(ai::best_move(m_board, Color::BLACK));
+            if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
+            {
+                m_board.move(ai::best_move(m_board, Color::BLACK));
+            }
         }
 
         SDL_RenderClear(m_rend);
