@@ -1,4 +1,5 @@
 #include "prog.h"
+#include "ai.h"
 
 Prog::Prog(SDL_Window *w, SDL_Renderer *r)
     : m_win(w), m_rend(r), m_board(r, "res/board")
@@ -39,6 +40,17 @@ void Prog::mainloop()
                 m_board.select(Coord(x, y));
             } break;
             }
+        }
+
+        if (m_board.detect_checkmate(Color::BLACK))
+        {
+            printf("Black is in checkmate\n");
+            break;
+        }
+
+        if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
+        {
+            m_board.move(ai::best_move(m_board, Color::BLACK));
         }
 
         SDL_RenderClear(m_rend);

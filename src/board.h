@@ -81,20 +81,28 @@ public:
 
     void render(SDL_Renderer *rend, SDL_FPoint top_left);
 
-    bool move(Move move);
+    void move(Move move);
+
+    std::vector<Move> get_valid_moves(Coord from, bool raw);
 
     bool detect_check(Color c);
+    bool detect_checkmate(Color c);
 
     void select(Coord c);
     void set_tile_size(float size);
 
-private:
-    std::vector<Move> get_valid_moves(Coord from, bool raw);
-    void scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw, int n, char up_to = ' ');
-    void add_valid_move(std::vector<Move> &moves, Move move, bool raw);
-
     char at(Coord c) const;
     Color color_at(Coord c) const;
+
+    Color turn() const { return m_turn; }
+
+    bool in_animation() const { return !m_animations.empty(); }
+
+private:
+    bool move_internal(Move move);
+
+    void scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw, int n, char up_to = ' ');
+    void add_valid_move(std::vector<Move> &moves, Move move, bool raw);
 
 private:
     std::array<std::array<char, 8>, 8> m_board;

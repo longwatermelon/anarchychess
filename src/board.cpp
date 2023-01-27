@@ -43,8 +43,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                    (at(Coord(5, 7)) == '.' && at(Coord(6, 7)) == '.');
         },
         .move_fn = [this](Move m){
-            move(Move(Coord(4, 7), Coord(6, 7)));
-            move(Move(Coord(7, 7), Coord(5, 7)));
+            move_internal(Move(Coord(4, 7), Coord(6, 7)));
+            move_internal(Move(Coord(7, 7), Coord(5, 7)));
         }
     });
 
@@ -56,8 +56,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                    (at(Coord(5, 0)) == '.' && at(Coord(6, 0)) == '.');
         },
         .move_fn = [this](Move m){
-            move(Move(Coord(4, 0), Coord(6, 0)));
-            move(Move(Coord(7, 0), Coord(5, 0)));
+            move_internal(Move(Coord(4, 0), Coord(6, 0)));
+            move_internal(Move(Coord(7, 0), Coord(5, 0)));
         }
     });
 
@@ -70,8 +70,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                     at(Coord(3, 7)) == '.');
         },
         .move_fn = [this](Move m){
-            move(Move(Coord(4, 7), Coord(2, 7)));
-            move(Move(Coord(0, 7), Coord(3, 7)));
+            move_internal(Move(Coord(4, 7), Coord(2, 7)));
+            move_internal(Move(Coord(0, 7), Coord(3, 7)));
         }
     });
 
@@ -84,8 +84,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                     at(Coord(3, 0)) == '.');
         },
         .move_fn = [this](Move m){
-            move(Move(Coord(4, 0), Coord(2, 0)));
-            move(Move(Coord(0, 0), Coord(3, 0)));
+            move_internal(Move(Coord(4, 0), Coord(2, 0)));
+            move_internal(Move(Coord(0, 0), Coord(3, 0)));
         }
     });
 
@@ -114,7 +114,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
             m_board[m.to.y][m.to.x] = 'O';
         }
     });
@@ -144,7 +144,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
             m_board[m.to.y][m.to.x] = 'o';
         }
     });
@@ -157,7 +157,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
         }
     });
 
@@ -169,7 +169,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
         }
     });
 
@@ -181,7 +181,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
         }
     });
 
@@ -193,7 +193,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         },
         .move_fn = [this](Move m){
             m.special = false;
-            move(m);
+            move_internal(m);
         }
     });
 }
@@ -279,7 +279,13 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
     }
 }
 
-bool Board::move(Move move)
+void Board::move(Move move)
+{
+    select(move.from);
+    select(move.to);
+}
+
+bool Board::move_internal(Move move)
 {
     if (move.special)
     {
@@ -343,6 +349,23 @@ breakloop:
     return false;
 }
 
+bool Board::detect_checkmate(Color c)
+{
+    for (int y = 0; y < 8; ++y)
+    {
+        for (int x = 0; x < 8; ++x)
+        {
+            if (color_at(Coord(x, y)) == c)
+            {
+                if (!get_valid_moves(Coord(x, y), false).empty())
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Board::select(Coord c)
 {
     if (!m_animations.empty())
@@ -363,7 +386,7 @@ void Board::select(Coord c)
     {
         if (c == m.to)
         {
-            move(m);
+            move_internal(m);
             m_selected = Coord(-1, -1);
             m_turn = m_turn == Color::WHITE ? Color::BLACK : Color::WHITE;
             return;
@@ -460,7 +483,7 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             m.special = true;
             m.special_move_fn = [this](Move m){
                 m.special = false;
-                move(m);
+                move_internal(m);
 
                 int dx = m.to.x - m.from.x < 0 ? -1 : 1;
                 int dy = m.to.y - m.from.y < 0 ? -1 : 1;

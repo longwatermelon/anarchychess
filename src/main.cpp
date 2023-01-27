@@ -1,7 +1,10 @@
 #include "prog.h"
+#include <ctime>
 
 int main(int argc, char **argv)
 {
+    srand(time(0));
+
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
     SDL_Window *win = SDL_CreateWindow("Anarchy chess",
