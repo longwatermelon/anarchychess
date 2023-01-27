@@ -92,7 +92,7 @@ Move ai::minimax_root(Board &board, int depth)
     for (const auto &move : moves)
     {
         board.test_move(move);
-        float move_eval = minimax(board, depth - 1, false);
+        float move_eval = minimax(board, depth - 1, -1e5f, 1e5f, false);
         board.restore_saved_board(prev_board);
 
         if (move_eval > best_eval)
@@ -105,7 +105,7 @@ Move ai::minimax_root(Board &board, int depth)
     return best;
 }
 
-float ai::minimax(Board &board, int depth, bool maximizing_player)
+float ai::minimax(Board &board, int depth, float alpha, float beta, bool maximizing_player)
 {
     if (depth == 0)
         return -eval(board);
@@ -118,9 +118,19 @@ float ai::minimax(Board &board, int depth, bool maximizing_player)
     {
         board.test_move(move);
         if (!maximizing_player)
-            best_eval = std::min(best_eval, minimax(board, depth - 1, !maximizing_player));
+        {
+            best_eval = std::min(best_eval, minimax(board, depth - 1, alpha, beta, !maximizing_player));
+            beta = std::min(beta, best_eval);
+            if (beta <= alpha)
+                return best_eval;
+        }
         else
-            best_eval = std::max(best_eval, minimax(board, depth - 1, !maximizing_player));
+        {
+            best_eval = std::max(best_eval, minimax(board, depth - 1, alpha, beta, !maximizing_player));
+            alpha = std::max(alpha, best_eval);
+            if (beta <= alpha)
+                return best_eval;
+        }
         board.restore_saved_board(prev_board);
     }
 
