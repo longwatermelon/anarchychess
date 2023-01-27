@@ -495,35 +495,35 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         scan_valid(from, -1, 1, moves, raw, 8);
         break;
     case 'q': case 'Q':
-        scan_valid(from, 1, 1, moves, raw, 8);
-        scan_valid(from, -1, -1, moves, raw, 8);
-        scan_valid(from, 1, -1, moves, raw, 8);
-        scan_valid(from, -1, 1, moves, raw, 8);
+        /* scan_valid(from, 1, 1, moves, raw, 8); */
+        /* scan_valid(from, -1, -1, moves, raw, 8); */
+        /* scan_valid(from, 1, -1, moves, raw, 8); */
+        /* scan_valid(from, -1, 1, moves, raw, 8); */
 
-        /* scan_valid(from, 1, 1, moves, raw, 8, at(from) == 'q' ? 'K' : 'k'); */
-        /* scan_valid(from, -1, -1, moves, raw, 8, at(from) == 'q' ? 'K' : 'k'); */
-        /* scan_valid(from, 1, -1, moves, raw, 8, at(from) == 'q' ? 'K' : 'k'); */
-        /* scan_valid(from, -1, 1, moves, raw, 8, at(from) == 'q' ? 'K' : 'k'); */
+        scan_valid(from, 1, 1, moves, raw, 8, 'k');
+        scan_valid(from, -1, -1, moves, raw, 8, 'k');
+        scan_valid(from, 1, -1, moves, raw, 8, 'k');
+        scan_valid(from, -1, 1, moves, raw, 8, 'k');
 
-        /* for (auto &m : moves) */
-        /* { */
-        /*     m.special = true; */
-        /*     m.special_move_fn = [this](Move m){ */
-        /*         m.special = false; */
-        /*         move_internal(m); */
+        for (auto &m : moves)
+        {
+            m.special = true;
+            m.special_move_fn = [this](Move m){
+                m.special = false;
+                move_internal(m);
 
-        /*         int dx = m.to.x - m.from.x < 0 ? -1 : 1; */
-        /*         int dy = m.to.y - m.from.y < 0 ? -1 : 1; */
-        /*         while (true) */
-        /*         { */
-        /*             m.from.x += dx; */
-        /*             m.from.y += dy; */
-        /*             if (m.from == m.to) */
-        /*                 break; */
-        /*             m_board[m.from.y][m.from.x] = '.'; */
-        /*         } */
-        /*     }; */
-        /* } */
+                int dx = m.to.x - m.from.x < 0 ? -1 : 1;
+                int dy = m.to.y - m.from.y < 0 ? -1 : 1;
+                while (true)
+                {
+                    m.from.x += dx;
+                    m.from.y += dy;
+                    if (m.from == m.to)
+                        break;
+                    m_board[m.from.y][m.from.x] = '.';
+                }
+            };
+        }
 
         scan_valid(from, 1, 0, moves, raw, 8);
         scan_valid(from, 0, 1, moves, raw, 8);
@@ -590,10 +590,14 @@ void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, boo
     Coord c = from;
     c.x += dx;
     c.y += dy;
+
+    if (std::tolower(at(c)) == up_to)
+        return;
+
     while (c.valid())
     {
         Coord next(c.x + dx, c.y + dy);
-        if ((up_to == ' ' && color_at(c) != Color::NONE) || at(next) == up_to)
+        if ((up_to == ' ' && color_at(c) != Color::NONE) || std::tolower(at(next)) == up_to)
         {
             if (color_at(c) != color_at(from))
                 add_valid_move(moves, Move(from, c), raw);
