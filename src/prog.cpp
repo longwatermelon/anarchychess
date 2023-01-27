@@ -22,7 +22,9 @@ void Prog::mainloop()
     SDL_Rect rtext;
     SDL_QueryTexture(wcheckmate, nullptr, nullptr, &rtext.w, &rtext.h);
 
+#ifndef __EMSCRIPTEN__
     while (m_running)
+#endif
     {
         SDL_GetWindowSize(m_win, &wx, &wy);
         float tile_size = std::min(wx, wy) / 8.f;
@@ -57,7 +59,7 @@ void Prog::mainloop()
 
         if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
         {
-            if (rand() % 100 < 15)
+            if (rand() % 100 < 5)
                 m_board.move(ai::random_move(m_board));
             else
                 m_board.move(ai::minimax_root(m_board, 4));

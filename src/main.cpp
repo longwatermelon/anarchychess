@@ -1,6 +1,17 @@
 #include "prog.h"
 #include <ctime>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
+Prog *g_prog;
+
+void run()
+{
+    g_prog->mainloop();
+}
+
 int main(int argc, char **argv)
 {
     srand(time(0));
@@ -15,8 +26,13 @@ int main(int argc, char **argv)
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     {
-        Prog p(win, rend);
-        p.mainloop();
+        g_prog = new Prog(win, rend);
+#ifdef __EMSCRIPTEN__
+        emscripten_set_main_loop(run, -1, 1);
+#else
+        g_prog->mainloop();
+#endif
+        delete g_prog;
     }
 
     SDL_DestroyRenderer(rend);
