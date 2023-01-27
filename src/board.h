@@ -91,6 +91,10 @@ public:
     void select(Coord c);
     void set_tile_size(float size);
 
+    void save_board_state();
+    void test_move(Move move);
+    void restore_saved_board();
+
     char at(Coord c) const;
     Color color_at(Coord c) const;
 
@@ -105,7 +109,7 @@ private:
     void add_valid_move(std::vector<Move> &moves, Move move, bool raw);
 
 private:
-    std::array<std::array<char, 8>, 8> m_board;
+    std::array<std::array<char, 8>, 8> m_board, m_board_saved;
     float m_tile_size{ 0.f };
 
     std::unordered_map<char, SDL_Texture*> m_textures;

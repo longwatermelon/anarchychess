@@ -405,6 +405,22 @@ void Board::set_tile_size(float size)
     m_tile_size = size;
 }
 
+void Board::save_board_state()
+{
+    m_board_saved = m_board;
+}
+
+void Board::test_move(Move move)
+{
+    m_board[move.to.y][move.to.x] = at(move.from);
+    m_board[move.from.y][move.from.x] = '.';
+}
+
+void Board::restore_saved_board()
+{
+    m_board = m_board_saved;
+}
+
 std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
 {
     std::vector<Move> moves;

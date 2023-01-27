@@ -3,6 +3,11 @@
 
 namespace ai
 {
-    Move best_move(Board &board, Color turn);
+    std::vector<Move> get_all_moves(Board &board);
+
+    float eval(Board &board);
+
+    Move random_move(Board &board);
+    Move best_move(Board &board);
 }
 

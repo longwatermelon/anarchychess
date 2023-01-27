@@ -50,7 +50,9 @@ void Prog::mainloop()
         {
             if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
             {
-                m_board.move(ai::best_move(m_board, Color::BLACK));
+                printf("%f\n", ai::eval(m_board));
+                m_board.move(ai::best_move(m_board));
+                printf("%f\n", ai::eval(m_board));
             }
         }
 
