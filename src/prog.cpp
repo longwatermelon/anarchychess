@@ -53,7 +53,7 @@ void Prog::mainloop()
         {
             if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
             {
-                m_board.move(ai::minimax_root(m_board, 4));
+                m_board.move(ai::minimax_root(m_board, 3));
             }
         }
 
