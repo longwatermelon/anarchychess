@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++17 -ggdb -Wall -O2
+CXXFLAGS=-std=c++17 -ggdb -Wall -Ofast
 INC=
 LDFLAGS=-lSDL2 -lSDL2_ttf -lSDL2_image
 

@@ -296,6 +296,12 @@ bool Board::move_internal(Move move)
         m_board[move.to.y][move.to.x] = at(move.from);
         m_board[move.from.y][move.from.x] = '.';
 
+        if (move.to.y == 0 && at(move.to) == 'P')
+            m_board[move.to.y][move.to.x] = 'Q';
+
+        if (move.to.y == 7 && at(move.to) == 'p')
+            m_board[move.to.y][move.to.x] = 'q';
+
         m_animations.emplace_back(Animation{
             .tex = m_textures[at(move.to)],
             .from = move.from,

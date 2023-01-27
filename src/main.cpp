@@ -7,6 +7,7 @@ int main(int argc, char **argv)
 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
     SDL_Window *win = SDL_CreateWindow("Anarchy chess",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -20,6 +21,7 @@ int main(int argc, char **argv)
 
     SDL_DestroyRenderer(rend);
     SDL_DestroyWindow(win);
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
     return 0;
