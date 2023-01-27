@@ -42,6 +42,9 @@ void Prog::mainloop()
             }
         }
 
+        if (m_board.detect_checkmate(Color::WHITE))
+            printf("White is in checkmate\n");
+
         if (m_board.detect_checkmate(Color::BLACK))
         {
             printf("Black is in checkmate\n");

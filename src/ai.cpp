@@ -45,6 +45,11 @@ float ai::eval(Board &board)
         }
     }
 
+    if (board.detect_checkmate(Color::WHITE))
+        return -1e5;
+    if (board.detect_checkmate(Color::BLACK))
+        return 1e5;
+
     return total;
 }
 
