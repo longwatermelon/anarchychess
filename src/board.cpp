@@ -149,53 +149,53 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         }
     });
 
-    m_special_moves.emplace_back(SpecialMove{
-        .name = "Siberian Swipe",
-        .cond = [this](Coord c, Coord &disp){
-            disp = Coord(0, 0);
-            return (c == Coord(0, 7) && at(Coord(0, 7)) == 'R' && at(Coord(0, 0)) == 'r');
-        },
-        .move_fn = [this](Move m){
-            m.special = false;
-            move_internal(m);
-        }
-    });
+    /* m_special_moves.emplace_back(SpecialMove{ */
+    /*     .name = "Siberian Swipe", */
+    /*     .cond = [this](Coord c, Coord &disp){ */
+    /*         disp = Coord(0, 0); */
+    /*         return (c == Coord(0, 7) && at(Coord(0, 7)) == 'R' && at(Coord(0, 0)) == 'r'); */
+    /*     }, */
+    /*     .move_fn = [this](Move m){ */
+    /*         m.special = false; */
+    /*         move_internal(m); */
+    /*     } */
+    /* }); */
 
-    m_special_moves.emplace_back(SpecialMove{
-        .name = "Siberian Swipe",
-        .cond = [this](Coord c, Coord &disp){
-            disp = Coord(7, 0);
-            return (c == Coord(7, 7) && at(Coord(7, 7)) == 'R' && at(Coord(7, 0)) == 'r');
-        },
-        .move_fn = [this](Move m){
-            m.special = false;
-            move_internal(m);
-        }
-    });
+    /* m_special_moves.emplace_back(SpecialMove{ */
+    /*     .name = "Siberian Swipe", */
+    /*     .cond = [this](Coord c, Coord &disp){ */
+    /*         disp = Coord(7, 0); */
+    /*         return (c == Coord(7, 7) && at(Coord(7, 7)) == 'R' && at(Coord(7, 0)) == 'r'); */
+    /*     }, */
+    /*     .move_fn = [this](Move m){ */
+    /*         m.special = false; */
+    /*         move_internal(m); */
+    /*     } */
+    /* }); */
 
-    m_special_moves.emplace_back(SpecialMove{
-        .name = "Siberian Swipe",
-        .cond = [this](Coord c, Coord &disp){
-            disp = Coord(0, 7);
-            return (c == Coord(0, 0) && at(Coord(0, 0)) == 'r' && at(Coord(0, 7)) == 'R');
-        },
-        .move_fn = [this](Move m){
-            m.special = false;
-            move_internal(m);
-        }
-    });
+    /* m_special_moves.emplace_back(SpecialMove{ */
+    /*     .name = "Siberian Swipe", */
+    /*     .cond = [this](Coord c, Coord &disp){ */
+    /*         disp = Coord(0, 7); */
+    /*         return (c == Coord(0, 0) && at(Coord(0, 0)) == 'r' && at(Coord(0, 7)) == 'R'); */
+    /*     }, */
+    /*     .move_fn = [this](Move m){ */
+    /*         m.special = false; */
+    /*         move_internal(m); */
+    /*     } */
+    /* }); */
 
-    m_special_moves.emplace_back(SpecialMove{
-        .name = "Siberian Swipe",
-        .cond = [this](Coord c, Coord &disp){
-            disp = Coord(7, 7);
-            return (c == Coord(7, 0) && at(Coord(7, 0)) == 'r' && at(Coord(7, 7)) == 'R');
-        },
-        .move_fn = [this](Move m){
-            m.special = false;
-            move_internal(m);
-        }
-    });
+    /* m_special_moves.emplace_back(SpecialMove{ */
+    /*     .name = "Siberian Swipe", */
+    /*     .cond = [this](Coord c, Coord &disp){ */
+    /*         disp = Coord(7, 7); */
+    /*         return (c == Coord(7, 0) && at(Coord(7, 0)) == 'r' && at(Coord(7, 7)) == 'R'); */
+    /*     }, */
+    /*     .move_fn = [this](Move m){ */
+    /*         m.special = false; */
+    /*         move_internal(m); */
+    /*     } */
+    /* }); */
 }
 
 Board::~Board()
