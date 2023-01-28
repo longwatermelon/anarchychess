@@ -94,10 +94,10 @@ void Prog::mainloop()
         {
             float eval = ai::eval(m_board);
 
-            if (rand() % 100 < 5)
-                m_board.move(ai::random_move(m_board));
-            else
-                m_board.move(ai::minimax_root(m_board, 3));
+            /* if (rand() % 100 < 5) */
+            /*     m_board.move(ai::random_move(m_board)); */
+            /* else */
+            m_board.move(ai::minimax_root(m_board, 3));
 
             std::stringstream ss;
             ss.precision(2);
