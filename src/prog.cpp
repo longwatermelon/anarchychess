@@ -17,8 +17,8 @@ void Prog::mainloop()
     SDL_Event evt;
     int wx, wy;
 
-    SDL_Texture *wcheckmate = render_text("Black wins by checkmate");
-    SDL_Texture *bcheckmate = render_text("White wins by checkmate");
+    SDL_Texture *wcheckmate = render_text("Black wins by checkmate (Click to restart)");
+    SDL_Texture *bcheckmate = render_text("White wins by checkmate (Click to restart)");
     SDL_Rect rtext;
     SDL_QueryTexture(wcheckmate, nullptr, nullptr, &rtext.w, &rtext.h);
 
@@ -44,25 +44,33 @@ void Prog::mainloop()
                 int mx, my;
                 SDL_GetMouseState(&mx, &my);
 
-                if (m_playing)
+                if (m_game_over)
                 {
-                    int x = (mx - top_left.x) / tile_size;
-                    int y = (my - top_left.y) / tile_size;
-                    m_board.select(Coord(x, y));
+                    m_restart = true;
+                    m_running = false;
                 }
                 else
                 {
-                    if (my < wy / 2)
-                        m_board.clear_anarchy_moves();
+                    if (m_playing)
+                    {
+                        int x = (mx - top_left.x) / tile_size;
+                        int y = (my - top_left.y) / tile_size;
+                        m_board.select(Coord(x, y));
+                    }
+                    else
+                    {
+                        if (my < wy / 2)
+                            m_board.clear_anarchy_moves();
 
-                    m_playing = true;
+                        m_playing = true;
+                    }
                 }
             } break;
             }
         }
 
         float prev_w = rtext.w;
-        rtext.w = .5f * wx;
+        rtext.w = .7f * wx;
         rtext.h = rtext.w / prev_w * rtext.h;
         rtext.x = wx / 2 - rtext.w / 2;
         rtext.y = wy / 2 - rtext.h / 2;
@@ -86,12 +94,14 @@ void Prog::mainloop()
         {
             SDL_RenderFillRect(m_rend, nullptr);
             SDL_RenderCopy(m_rend, wcheckmate, nullptr, &rtext);
+            m_game_over = true;
         }
 
         if (m_board.detect_checkmate(Color::BLACK))
         {
             SDL_RenderFillRect(m_rend, nullptr);
             SDL_RenderCopy(m_rend, bcheckmate, nullptr, &rtext);
+            m_game_over = true;
         }
         SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
 
@@ -131,6 +141,9 @@ void Prog::mainloop()
 
             SDL_RenderCopy(m_rend, normal, nullptr, &rn);
             SDL_RenderCopy(m_rend, anarchy, nullptr, &ra);
+
+            SDL_DestroyTexture(normal);
+            SDL_DestroyTexture(anarchy);
         }
 
         SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);

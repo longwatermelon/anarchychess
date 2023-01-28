@@ -12,6 +12,9 @@ public:
 
     void mainloop();
 
+    bool running() const { return m_running; }
+    bool should_restart() const { return m_restart; }
+
 private:
     SDL_Texture *render_text(std::string s);
 
@@ -24,5 +27,7 @@ private:
     Board m_board;
 
     bool m_playing{ false };
+    bool m_game_over{ false };
+    bool m_restart{ false };
 };
 

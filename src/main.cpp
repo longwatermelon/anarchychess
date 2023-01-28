@@ -6,10 +6,33 @@
 #endif
 
 Prog *g_prog;
+SDL_Window *g_win;
+SDL_Renderer *g_rend;
 
 void run()
 {
-    g_prog->mainloop();
+#ifndef __EMSCRIPTEN__
+    while (true)
+#endif
+    {
+        g_prog->mainloop();
+
+        if (!g_prog->running())
+        {
+            bool restart = g_prog->should_restart();
+            delete g_prog;
+
+            if (!restart)
+            {
+#ifdef __EMSCRIPTEN__
+                emscripten_cancel_main_loop();
+#else
+                return;
+#endif
+            }
+            g_prog = new Prog(g_win, g_rend);
+        }
+    }
 }
 
 int main(int argc, char **argv)
@@ -19,24 +42,21 @@ int main(int argc, char **argv)
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
-    SDL_Window *win = SDL_CreateWindow("Anarchy chess",
+    g_win = SDL_CreateWindow("Anarchy chess",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    SDL_Renderer *rend = SDL_CreateRenderer(win, -1,
+            800, 800, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    g_rend = SDL_CreateRenderer(g_win, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    g_prog = new Prog(g_win, g_rend);
 
-    {
-        g_prog = new Prog(win, rend);
 #ifdef __EMSCRIPTEN__
-        emscripten_set_main_loop(run, -1, 1);
+    emscripten_set_main_loop(run, -1, 1);
 #else
-        g_prog->mainloop();
+    run();
 #endif
-        delete g_prog;
-    }
 
-    SDL_DestroyRenderer(rend);
-    SDL_DestroyWindow(win);
+    SDL_DestroyRenderer(g_rend);
+    SDL_DestroyWindow(g_win);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
