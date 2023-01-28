@@ -333,7 +333,7 @@ bool Board::move_internal(Move move)
             m_board[move.to.y][move.to.x] = m_anarchy ? 'O' : 'Q';
 
         if (move.to.y == 7 && at(move.to) == 'p')
-            m_board[move.to.y][move.to.x] = m_anarchy ? 'q' : 'o';
+            m_board[move.to.y][move.to.x] = m_anarchy ? 'o' : 'q';
 
         m_animations.emplace_back(Animation{
             .tex = m_textures[at(move.to)],
