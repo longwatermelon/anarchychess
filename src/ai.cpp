@@ -190,9 +190,17 @@ float ai::eval(Board &board)
     }
 
     if (board.detect_checkmate(Color::WHITE))
-        return -INFINITY;
-    if (board.detect_checkmate(Color::BLACK))
+    {
+        if (board.detect_check(Color::WHITE))
+            return -INFINITY;
         return INFINITY;
+    }
+    if (board.detect_checkmate(Color::BLACK))
+    {
+        if (board.detect_check(Color::BLACK))
+            return INFINITY;
+        return -INFINITY;
+    }
 
     return total;
 }

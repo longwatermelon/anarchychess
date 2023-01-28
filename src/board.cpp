@@ -233,6 +233,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
 
 Board::~Board()
 {
+    for (auto &[key, value] : m_textures)
+        SDL_DestroyTexture(value);
 }
 
 void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
