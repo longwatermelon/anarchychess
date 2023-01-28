@@ -5,8 +5,37 @@
 #include <iostream>
 #include <SDL2/SDL_image.h>
 
+Move::Move(const Board &board, Coord from, Coord to)
+    : from(from), to(to)
+{
+    switch (board.at(from))
+    {
+    case 'p': case 'P':
+        name = "Pawn";
+        break;
+    case 'r': case 'R':
+        name = "Rook";
+        break;
+    case 'n': case 'N':
+        name = "Knight";
+        break;
+    case 'b': case 'B':
+        name = "Bishop";
+        break;
+    case 'q': case 'Q':
+        name = "Queen";
+        break;
+    case 'k': case 'K':
+        name = "King";
+        break;
+    case 'o': case 'O':
+        name = "Knook";
+        break;
+    }
+}
+
 Board::Board(SDL_Renderer *rend, const std::string &board_fp)
-    : m_selected(-1, -1), m_last_move(Coord(-1, -1), Coord(-1, -1))
+    : m_selected(-1, -1), m_last_move(*this, Coord(-1, -1), Coord(-1, -1))
 {
     std::ifstream ifs(board_fp);
     std::string buf;
@@ -36,35 +65,35 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     m_textures['O'] = IMG_LoadTexture(rend, "res/w-knook.png");
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "White short castle",
+        .name = "Short castle",
         .cond = [this](Coord c, Coord &disp){
             disp = Coord(6, 7);
             return (c == Coord(4, 7) && at(Coord(7, 7)) == 'R') &&
                    (at(Coord(5, 7)) == '.' && at(Coord(6, 7)) == '.');
         },
         .move_fn = [this](Move m){
-            move_internal(Move(Coord(4, 7), Coord(6, 7)));
-            move_internal(Move(Coord(7, 7), Coord(5, 7)));
+            move_internal(Move(*this, Coord(7, 7), Coord(5, 7)));
+            move_internal(Move(*this, Coord(4, 7), Coord(6, 7)));
         },
         .anarchy = false
     });
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "Black short castle",
+        .name = "Short castle",
         .cond = [this](Coord c, Coord &disp){
             disp = Coord(6, 0);
             return (c == Coord(4, 0) && at(Coord(7, 0)) == 'r') &&
                    (at(Coord(5, 0)) == '.' && at(Coord(6, 0)) == '.');
         },
         .move_fn = [this](Move m){
-            move_internal(Move(Coord(4, 0), Coord(6, 0)));
-            move_internal(Move(Coord(7, 0), Coord(5, 0)));
+            move_internal(Move(*this, Coord(7, 0), Coord(5, 0)));
+            move_internal(Move(*this, Coord(4, 0), Coord(6, 0)));
         },
         .anarchy = false
     });
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "White long castle",
+        .name = "Long castle",
         .cond = [this](Coord c, Coord &disp){
             disp = Coord(2, 7);
             return (c == Coord(4, 7) && at(Coord(0, 7)) == 'R') &&
@@ -72,14 +101,14 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                     at(Coord(3, 7)) == '.');
         },
         .move_fn = [this](Move m){
-            move_internal(Move(Coord(4, 7), Coord(2, 7)));
-            move_internal(Move(Coord(0, 7), Coord(3, 7)));
+            move_internal(Move(*this, Coord(0, 7), Coord(3, 7)));
+            move_internal(Move(*this, Coord(4, 7), Coord(2, 7)));
         },
         .anarchy = false
     });
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "Black long castle",
+        .name = "Long castle",
         .cond = [this](Coord c, Coord &disp){
             disp = Coord(2, 0);
             return (c == Coord(4, 0) && at(Coord(0, 0)) == 'r') &&
@@ -87,14 +116,14 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
                     at(Coord(3, 0)) == '.');
         },
         .move_fn = [this](Move m){
-            move_internal(Move(Coord(4, 0), Coord(2, 0)));
-            move_internal(Move(Coord(0, 0), Coord(3, 0)));
+            move_internal(Move(*this, Coord(0, 0), Coord(3, 0)));
+            move_internal(Move(*this, Coord(4, 0), Coord(2, 0)));
         },
         .anarchy = false
     });
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "White knook create",
+        .name = "Knook spawn",
         .cond = [this](Coord c, Coord &disp){
             if (at(c) != 'N')
                 return false;
@@ -124,7 +153,7 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     });
 
     m_special_moves.emplace_back(SpecialMove{
-        .name = "Black knook create",
+        .name = "Knook spawn",
         .cond = [this](Coord c, Coord &disp){
             if (at(c) != 'n')
                 return false;
@@ -232,7 +261,7 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
                 SDL_RenderFillRectF(rend, &rtile);
             }
 
-            if (std::find(moves.begin(), moves.end(), Move(m_selected, Coord(x, y))) != moves.end())
+            if (std::find(moves.begin(), moves.end(), Move(*this, m_selected, Coord(x, y))) != moves.end())
             {
                 SDL_SetRenderDrawColor(rend, 0, 255, 0, 100);
                 SDL_RenderFillRectF(rend, &rtile);
@@ -301,10 +330,10 @@ bool Board::move_internal(Move move)
         m_board[move.from.y][move.from.x] = '.';
 
         if (move.to.y == 0 && at(move.to) == 'P')
-            m_board[move.to.y][move.to.x] = 'Q';
+            m_board[move.to.y][move.to.x] = m_anarchy ? 'O' : 'Q';
 
         if (move.to.y == 7 && at(move.to) == 'p')
-            m_board[move.to.y][move.to.x] = 'q';
+            m_board[move.to.y][move.to.x] = m_anarchy ? 'q' : 'o';
 
         m_animations.emplace_back(Animation{
             .tex = m_textures[at(move.to)],
@@ -392,13 +421,23 @@ void Board::select(Coord c)
 
     std::vector<Move> moves = get_valid_moves(m_selected, false);
 
-    for (const auto &m : moves)
+    for (auto &m : moves)
     {
         if (c == m.to)
         {
+            bool boost = false;
+            if (m.name == "Pawn" && (m.to.y == 0 || m.to.y == 7) && m_anarchy)
+            {
+                boost = true;
+                m.name = "Knook boost";
+            }
+
             move_internal(m);
             m_selected = Coord(-1, -1);
-            m_turn = m_turn == Color::WHITE ? Color::BLACK : Color::WHITE;
+
+            if (!boost)
+                m_turn = m_turn == Color::WHITE ? Color::BLACK : Color::WHITE;
+
             return;
         }
     }
@@ -447,44 +486,44 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         --c.y;
         if (c.valid() && at(c) == '.')
         {
-            add_valid_move(moves, Move(from, c), raw);
+            add_valid_move(moves, Move(*this, from, c), raw);
 
             if (from.y == 6)
             {
                 --c.y;
                 if (c.valid() && at(c) == '.')
-                    add_valid_move(moves, Move(from, c), raw);
+                    add_valid_move(moves, Move(*this, from, c), raw);
                 ++c.y;
             }
         }
 
         --c.x;
-        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(*this, from, c), raw);
 
         c.x += 2;
-        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(*this, from, c), raw);
     } break;
     case 'p':
     {
         ++c.y;
         if (c.valid() && at(c) == '.')
         {
-            add_valid_move(moves, Move(from, c), raw);
+            add_valid_move(moves, Move(*this, from, c), raw);
 
             if (from.y == 1)
             {
                 ++c.y;
                 if (c.valid() && at(c) == '.')
-                    add_valid_move(moves, Move(from, c), raw);
+                    add_valid_move(moves, Move(*this, from, c), raw);
                 --c.y;
             }
         }
 
         --c.x;
-        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(*this, from, c), raw);
 
         c.x += 2;
-        if (pawn_capture(c)) add_valid_move(moves, Move(from, c), raw);
+        if (pawn_capture(c)) add_valid_move(moves, Move(*this, from, c), raw);
     } break;
     case 'r': case 'R':
         scan_valid(from, 1, 0, moves, raw, 8);
@@ -499,7 +538,6 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         scan_valid(from, -1, 1, moves, raw, 8);
         break;
     case 'q': case 'Q':
-
         if (m_anarchy)
         {
             scan_valid(from, 1, 1, moves, raw, 8, 'k');
@@ -509,6 +547,7 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
 
             for (auto &m : moves)
             {
+                m.name = "Alaskan Avalanche";
                 m.special = true;
                 m.special_move_fn = [this](Move m){
                     m.special = false;
@@ -547,7 +586,7 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             for (int x = std::max(0, from.x - 2); x <= std::min(7, from.x + 2); ++x)
             {
                 if (std::abs((y - from.y) * (x - from.x)) == 2 && color_at(Coord(x, y)) != color_at(from))
-                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
+                    add_valid_move(moves, Move(*this, from, Coord(x, y)), raw);
             }
         }
     } break;
@@ -558,7 +597,7 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             for (int x = std::max(0, from.x - 1); x <= std::min(7, from.x + 1); ++x)
             {
                 if (color_at(Coord(x, y)) != color_at(from))
-                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
+                    add_valid_move(moves, Move(*this, from, Coord(x, y)), raw);
             }
         }
     } break;
@@ -574,7 +613,7 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             for (int x = std::max(0, from.x - 2); x <= std::min(7, from.x + 2); ++x)
             {
                 if (std::abs((y - from.y) * (x - from.x)) == 2 && color_at(Coord(x, y)) != color_at(from))
-                    add_valid_move(moves, Move(from, Coord(x, y)), raw);
+                    add_valid_move(moves, Move(*this, from, Coord(x, y)), raw);
             }
         }
     } break;
@@ -585,13 +624,14 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         Coord disp(-1, -1);
         if (special.cond(from, disp))
         {
-            Move m(from, disp);
+            Move m(*this, from, disp);
             auto prev_board = m_board;
             test_move(m);
             if (!detect_check(color_at(disp)))
             {
                 m.special = true;
                 m.special_move_fn = special.move_fn;
+                m.name = special.name;
                 moves.emplace_back(m);
             }
             m_board = prev_board;
@@ -616,12 +656,12 @@ void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, boo
         if ((up_to == ' ' && color_at(c) != Color::NONE) || std::tolower(at(next)) == up_to)
         {
             if (color_at(c) != color_at(from))
-                add_valid_move(moves, Move(from, c), raw);
+                add_valid_move(moves, Move(*this, from, c), raw);
 
             break;
         }
 
-        add_valid_move(moves, Move(from, c), raw);
+        add_valid_move(moves, Move(*this, from, c), raw);
         c = next;
         --n;
 

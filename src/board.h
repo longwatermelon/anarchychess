@@ -15,7 +15,7 @@ struct Coord
 
     std::string to_str() const
     {
-        return std::to_string('a' + x) + std::to_string(y + 1);
+        return std::string(1, 'a' + x) + std::to_string((7 - y) + 1);
     }
 
     bool valid() const
@@ -35,20 +35,27 @@ struct Coord
     }
 };
 
+class Board;
+
 struct Move
 {
+    std::string name;
     Coord from;
     Coord to;
 
     bool special{ false };
     std::function<void(Move)> special_move_fn;
 
-    Move(Coord from, Coord to)
-        : from(from), to(to) {}
+    Move(const Board &board, Coord from, Coord to);
 
     bool operator==(const Move &other) const
     {
         return from == other.from && to == other.to;
+    }
+
+    bool operator!=(const Move &other) const
+    {
+        return !(*this == other);
     }
 };
 
@@ -102,6 +109,7 @@ public:
     Color turn() const { return m_turn; }
 
     bool in_animation() const { return !m_animations.empty(); }
+    Move last_move() const { return m_last_move; }
 
     void clear_anarchy_moves();
 

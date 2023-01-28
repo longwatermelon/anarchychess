@@ -53,6 +53,16 @@ float ai::eval(Board &board)
             {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
             {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
         }},
+        {'O', {
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+            {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
+            {-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0},
+            {-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0},
+            {-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0},
+            {-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0},
+            {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
+        }},
         {'B', {
             { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
             { -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
@@ -105,6 +115,16 @@ float ai::eval(Board &board)
             {9.0,  9.0,  9.0,  9.0,  9.0,  9.0,  9.0,  9.0}
         }},
         {'n', {
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+            {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
+            {-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0},
+            {-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0},
+            {-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0},
+            {-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0},
+            {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
+        }},
+        {'o', {
             {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
             {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
             {-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0},
@@ -170,9 +190,9 @@ float ai::eval(Board &board)
     }
 
     if (board.detect_checkmate(Color::WHITE))
-        return -1e5;
+        return -INFINITY;
     if (board.detect_checkmate(Color::BLACK))
-        return 1e5;
+        return INFINITY;
 
     return total;
 }
@@ -209,14 +229,14 @@ Move ai::minimax_root(Board &board, int depth)
 {
     std::vector<Move> moves = get_all_moves(board, Color::BLACK);
 
-    float best_eval = -1e5f;
+    float best_eval = -INFINITY;
     Move best = moves[rand() % moves.size()];
 
     auto prev_board = board.get_board();
     for (const auto &move : moves)
     {
         board.test_move(move);
-        float move_eval = minimax(board, depth - 1, -1e5f, 1e5f, false);
+        float move_eval = minimax(board, depth - 1, -INFINITY, INFINITY, false);
         board.restore_saved_board(prev_board);
 
         if (move_eval > best_eval)
@@ -235,7 +255,7 @@ float ai::minimax(Board &board, int depth, float alpha, float beta, bool maximiz
         return -eval(board);
 
     std::vector<Move> moves = get_all_moves(board, maximizing_player ? Color::BLACK : Color::WHITE);
-    float best_eval = 1e5f * (maximizing_player ? -1.f : 1.f);
+    float best_eval = INFINITY * (maximizing_player ? -1.f : 1.f);
 
     auto prev_board = board.get_board();
     for (const auto &move : moves)

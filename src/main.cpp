@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     TTF_Init();
     g_win = SDL_CreateWindow("Anarchy chess",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            800, 800, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+            800, 840, SDL_WINDOW_SHOWN);
     g_rend = SDL_CreateRenderer(g_win, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     g_prog = new Prog(g_win, g_rend);
