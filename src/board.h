@@ -57,6 +57,7 @@ struct SpecialMove
     std::string name;
     std::function<bool(Coord, Coord&)> cond;
     std::function<void(Move)> move_fn;
+    bool anarchy{ true };
 };
 
 enum class Color
@@ -102,6 +103,8 @@ public:
 
     bool in_animation() const { return !m_animations.empty(); }
 
+    void clear_anarchy_moves();
+
 private:
     bool move_internal(Move move);
 
@@ -121,5 +124,7 @@ private:
 
     Move m_last_move;
     Color m_turn{ Color::WHITE };
+
+    bool m_anarchy{ true };
 };
 

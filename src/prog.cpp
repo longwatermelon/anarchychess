@@ -44,9 +44,19 @@ void Prog::mainloop()
                 int mx, my;
                 SDL_GetMouseState(&mx, &my);
 
-                int x = (mx - top_left.x) / tile_size;
-                int y = (my - top_left.y) / tile_size;
-                m_board.select(Coord(x, y));
+                if (m_playing)
+                {
+                    int x = (mx - top_left.x) / tile_size;
+                    int y = (my - top_left.y) / tile_size;
+                    m_board.select(Coord(x, y));
+                }
+                else
+                {
+                    if (my < wy / 2)
+                        m_board.clear_anarchy_moves();
+
+                    m_playing = true;
+                }
             } break;
             }
         }
@@ -84,6 +94,44 @@ void Prog::mainloop()
             SDL_RenderCopy(m_rend, bcheckmate, nullptr, &rtext);
         }
         SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
+
+        if (!m_playing)
+        {
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+
+            SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
+            SDL_Rect rtop = { 0, 0, wx, wy / 2 };
+            SDL_Rect rbot = { 0, wy / 2, wx, wy / 2 };
+
+            SDL_SetRenderDrawColor(m_rend, 0, 100, 0, 100);
+            SDL_RenderFillRect(m_rend, my < wy / 2 ? &rtop : &rbot);
+            SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 100);
+            SDL_RenderFillRect(m_rend, my >= wy / 2 ? &rtop : &rbot);
+
+            SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
+            SDL_Texture *normal = render_text("Play computer (Normal)");
+            SDL_Texture *anarchy = render_text("Play computer (Anarchy)");
+
+            SDL_Rect rn, ra;
+            SDL_QueryTexture(normal, nullptr, nullptr, &rn.w, &rn.h);
+            SDL_QueryTexture(anarchy, nullptr, nullptr, &ra.w, &ra.h);
+
+            float rw = rn.w;
+            rn.w = .5f * wx;
+            rn.h = rn.w / rw * rn.h;
+            rn.x = wx / 2 - rn.w / 2;
+            rn.y = wy / 4 - rn.h / 2;
+
+            rw = ra.w;
+            ra.w = .5f * wx;
+            ra.h = ra.w / rw * ra.h;
+            ra.x = wx / 2 - ra.w / 2;
+            ra.y = wy / 4 - ra.h / 2 + wy / 2;
+
+            SDL_RenderCopy(m_rend, normal, nullptr, &rn);
+            SDL_RenderCopy(m_rend, anarchy, nullptr, &ra);
+        }
 
         SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
         SDL_RenderPresent(m_rend);

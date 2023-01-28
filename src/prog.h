@@ -22,5 +22,7 @@ private:
     TTF_Font *m_font{ nullptr };
 
     Board m_board;
+
+    bool m_playing{ false };
 };
 
