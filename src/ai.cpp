@@ -163,9 +163,9 @@ float ai::eval(Board &board)
         for (int x = 0; x < 8; ++x)
         {
             if (board.color_at(Coord(x, y)) == Color::WHITE)
-                total += points[board.at(Coord(x, y)) - 'A' + 'a'] + pos_points[board.at(Coord(x, y))][y][x];
+                total += points[board.at(Coord(x, y)) - 'A' + 'a'] + pos_points[board.at(Coord(x, y))][y][x] / 10.f;
             else if (board.color_at(Coord(x, y)) == Color::BLACK)
-                total -= points[board.at(Coord(x, y))] + pos_points[board.at(Coord(x, y))][y][x];
+                total -= points[board.at(Coord(x, y))] + pos_points[board.at(Coord(x, y))][y][x] / 10.f;
         }
     }
 

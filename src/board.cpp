@@ -149,53 +149,53 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
         }
     });
 
-    /* m_special_moves.emplace_back(SpecialMove{ */
-    /*     .name = "Siberian Swipe", */
-    /*     .cond = [this](Coord c, Coord &disp){ */
-    /*         disp = Coord(0, 0); */
-    /*         return (c == Coord(0, 7) && at(Coord(0, 7)) == 'R' && at(Coord(0, 0)) == 'r'); */
-    /*     }, */
-    /*     .move_fn = [this](Move m){ */
-    /*         m.special = false; */
-    /*         move_internal(m); */
-    /*     } */
-    /* }); */
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Siberian Swipe",
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(0, 0);
+            return (c == Coord(0, 7) && at(Coord(0, 7)) == 'R' && at(Coord(0, 0)) == 'r');
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move_internal(m);
+        }
+    });
 
-    /* m_special_moves.emplace_back(SpecialMove{ */
-    /*     .name = "Siberian Swipe", */
-    /*     .cond = [this](Coord c, Coord &disp){ */
-    /*         disp = Coord(7, 0); */
-    /*         return (c == Coord(7, 7) && at(Coord(7, 7)) == 'R' && at(Coord(7, 0)) == 'r'); */
-    /*     }, */
-    /*     .move_fn = [this](Move m){ */
-    /*         m.special = false; */
-    /*         move_internal(m); */
-    /*     } */
-    /* }); */
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Siberian Swipe",
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(7, 0);
+            return (c == Coord(7, 7) && at(Coord(7, 7)) == 'R' && at(Coord(7, 0)) == 'r');
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move_internal(m);
+        }
+    });
 
-    /* m_special_moves.emplace_back(SpecialMove{ */
-    /*     .name = "Siberian Swipe", */
-    /*     .cond = [this](Coord c, Coord &disp){ */
-    /*         disp = Coord(0, 7); */
-    /*         return (c == Coord(0, 0) && at(Coord(0, 0)) == 'r' && at(Coord(0, 7)) == 'R'); */
-    /*     }, */
-    /*     .move_fn = [this](Move m){ */
-    /*         m.special = false; */
-    /*         move_internal(m); */
-    /*     } */
-    /* }); */
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Siberian Swipe",
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(0, 7);
+            return (c == Coord(0, 0) && at(Coord(0, 0)) == 'r' && at(Coord(0, 7)) == 'R');
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move_internal(m);
+        }
+    });
 
-    /* m_special_moves.emplace_back(SpecialMove{ */
-    /*     .name = "Siberian Swipe", */
-    /*     .cond = [this](Coord c, Coord &disp){ */
-    /*         disp = Coord(7, 7); */
-    /*         return (c == Coord(7, 0) && at(Coord(7, 0)) == 'r' && at(Coord(7, 7)) == 'R'); */
-    /*     }, */
-    /*     .move_fn = [this](Move m){ */
-    /*         m.special = false; */
-    /*         move_internal(m); */
-    /*     } */
-    /* }); */
+    m_special_moves.emplace_back(SpecialMove{
+        .name = "Siberian Swipe",
+        .cond = [this](Coord c, Coord &disp){
+            disp = Coord(7, 7);
+            return (c == Coord(7, 0) && at(Coord(7, 0)) == 'r' && at(Coord(7, 7)) == 'R');
+        },
+        .move_fn = [this](Move m){
+            m.special = false;
+            move_internal(m);
+        }
+    });
 }
 
 Board::~Board()
@@ -495,35 +495,35 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         scan_valid(from, -1, 1, moves, raw, 8);
         break;
     case 'q': case 'Q':
-        /* scan_valid(from, 1, 1, moves, raw, 8); */
-        /* scan_valid(from, -1, -1, moves, raw, 8); */
-        /* scan_valid(from, 1, -1, moves, raw, 8); */
-        /* scan_valid(from, -1, 1, moves, raw, 8); */
+        scan_valid(from, 1, 1, moves, raw, 8);
+        scan_valid(from, -1, -1, moves, raw, 8);
+        scan_valid(from, 1, -1, moves, raw, 8);
+        scan_valid(from, -1, 1, moves, raw, 8);
 
-        scan_valid(from, 1, 1, moves, raw, 8, 'k');
-        scan_valid(from, -1, -1, moves, raw, 8, 'k');
-        scan_valid(from, 1, -1, moves, raw, 8, 'k');
-        scan_valid(from, -1, 1, moves, raw, 8, 'k');
+        /* scan_valid(from, 1, 1, moves, raw, 8, 'k'); */
+        /* scan_valid(from, -1, -1, moves, raw, 8, 'k'); */
+        /* scan_valid(from, 1, -1, moves, raw, 8, 'k'); */
+        /* scan_valid(from, -1, 1, moves, raw, 8, 'k'); */
 
-        for (auto &m : moves)
-        {
-            m.special = true;
-            m.special_move_fn = [this](Move m){
-                m.special = false;
-                move_internal(m);
+        /* for (auto &m : moves) */
+        /* { */
+        /*     m.special = true; */
+        /*     m.special_move_fn = [this](Move m){ */
+        /*         m.special = false; */
+        /*         move_internal(m); */
 
-                int dx = m.to.x - m.from.x < 0 ? -1 : 1;
-                int dy = m.to.y - m.from.y < 0 ? -1 : 1;
-                while (true)
-                {
-                    m.from.x += dx;
-                    m.from.y += dy;
-                    if (m.from == m.to)
-                        break;
-                    m_board[m.from.y][m.from.x] = '.';
-                }
-            };
-        }
+        /*         int dx = m.to.x - m.from.x < 0 ? -1 : 1; */
+        /*         int dy = m.to.y - m.from.y < 0 ? -1 : 1; */
+        /*         while (true) */
+        /*         { */
+        /*             m.from.x += dx; */
+        /*             m.from.y += dy; */
+        /*             if (m.from == m.to) */
+        /*                 break; */
+        /*             m_board[m.from.y][m.from.x] = '.'; */
+        /*         } */
+        /*     }; */
+        /* } */
 
         scan_valid(from, 1, 0, moves, raw, 8);
         scan_valid(from, 0, 1, moves, raw, 8);
@@ -576,9 +576,15 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
         if (special.cond(from, disp))
         {
             Move m(from, disp);
-            m.special = true;
-            m.special_move_fn = special.move_fn;
-            moves.emplace_back(m);
+            auto prev_board = m_board;
+            test_move(m);
+            if (!detect_check(color_at(disp)))
+            {
+                m.special = true;
+                m.special_move_fn = special.move_fn;
+                moves.emplace_back(m);
+            }
+            m_board = prev_board;
         }
     }
 
