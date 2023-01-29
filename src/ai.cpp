@@ -23,7 +23,7 @@ float ai::eval(Board &board)
         { 'n', 3.f },
         { 'b', 3.f },
         { 'r', 5.f },
-        { 'o', 7.f },
+        { 'o', 8.f },
         { 'q', 10.f },
         { 'k', 0.f }
     };
