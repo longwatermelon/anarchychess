@@ -112,6 +112,7 @@ public:
     Move last_move() const { return m_last_move; }
 
     void clear_anarchy_moves();
+    bool anarchy() const { return m_anarchy; }
 
 private:
     bool move_internal(Move move);
@@ -134,5 +135,8 @@ private:
     Color m_turn{ Color::WHITE };
 
     bool m_anarchy{ true };
+
+    Uint32 m_explode_begin = 0;
+    SDL_Texture *m_texplode{ nullptr };
 };
 

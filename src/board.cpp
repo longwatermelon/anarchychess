@@ -64,6 +64,8 @@ Board::Board(SDL_Renderer *rend, const std::string &board_fp)
     m_textures['P'] = IMG_LoadTexture(rend, "res/w-pawn.png");
     m_textures['O'] = IMG_LoadTexture(rend, "res/w-knook.png");
 
+    m_texplode = IMG_LoadTexture(rend, "res/explode.png");
+
     m_special_moves.emplace_back(SpecialMove{
         .name = "Short castle",
         .cond = [this](Coord c, Coord &disp){
@@ -235,6 +237,8 @@ Board::~Board()
 {
     for (auto &[key, value] : m_textures)
         SDL_DestroyTexture(value);
+
+    SDL_DestroyTexture(m_texplode);
 }
 
 void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
@@ -286,6 +290,12 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
                 {
                     if (SDL_GetTicks() - m_animations[i].begin > m_animations[i].time_ms)
                     {
+                        if (m_anarchy && m_animations[i].to.to_str() == "c4")
+                        {
+                            m_explode_begin = SDL_GetTicks();
+                            m_board[m_animations[i].to.y][m_animations[i].to.x] = '.';
+                        }
+
                         m_animations.erase(m_animations.begin() + i--);
                         continue;
                     }
@@ -311,6 +321,18 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
                 SDL_RenderCopyF(rend, m_textures[m_board[y][x]], nullptr, &rpiece);
             }
         }
+    }
+
+    if (SDL_GetTicks() - m_explode_begin <= 500 && m_explode_begin != 0)
+    {
+        SDL_FRect r = {
+            top_left.x + 2 * m_tile_size,
+            top_left.y + 4 * m_tile_size,
+            m_tile_size,
+            m_tile_size
+        };
+
+        SDL_RenderCopyF(rend, m_texplode, nullptr, &r);
     }
 }
 

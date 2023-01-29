@@ -191,7 +191,7 @@ void Prog::mainloop()
 
             std::stringstream ss_move;
             if (!m_board.last_move().name.empty())
-                ss_move << m_board.last_move().name << " to " << m_board.last_move().to.to_str();
+                ss_move << m_board.last_move().name << (m_board.last_move().to.to_str() == "c4" && m_board.anarchy() ? " explodes on " : " to ") << m_board.last_move().to.to_str();
             SDL_Texture *last_move = render_text(m_small_font, ss_move.str());
             SDL_QueryTexture(last_move, nullptr, nullptr, &r.w, &r.h);
             r.x = wx - r.w - 10;
