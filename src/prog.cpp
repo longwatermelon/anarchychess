@@ -22,8 +22,10 @@ void Prog::mainloop()
 
     SDL_Texture *wcheckmate = render_text(m_font, "Black wins by checkmate (Click to restart)");
     SDL_Texture *bcheckmate = render_text(m_font, "White wins by checkmate (Click to restart)");
-    SDL_Rect rtext;
+    SDL_Texture *stalemate = render_text(m_font, "Stalemate (Click to restart)");
+    SDL_Rect rtext, rstalemate;
     SDL_QueryTexture(wcheckmate, nullptr, nullptr, &rtext.w, &rtext.h);
+    SDL_QueryTexture(stalemate, nullptr, nullptr, &rstalemate.w, &rstalemate.h);
 
 #ifndef __EMSCRIPTEN__
     while (m_running)
@@ -74,7 +76,7 @@ void Prog::mainloop()
                     }
                     else
                     {
-                        if (my < wy / 2)
+                        if (my < wy / 2 + 40)
                             m_board.clear_anarchy_moves();
 
                         m_playing = true;
@@ -89,6 +91,12 @@ void Prog::mainloop()
         rtext.h = rtext.w / prev_w * rtext.h;
         rtext.x = (int)top_left.x + board_side / 2 - rtext.w / 2;
         rtext.y = (int)top_left.y + board_side / 2 - rtext.h / 2;
+
+        prev_w = rstalemate.w;
+        rstalemate.w = .7f * board_side;
+        rstalemate.h = rstalemate.w / prev_w * rstalemate.h;
+        rstalemate.x = (int)top_left.x + board_side / 2 - rstalemate.w / 2;
+        rstalemate.y = (int)top_left.y + board_side / 2 - rstalemate.h / 2;
 
         if (m_board.turn() == Color::BLACK && !m_board.in_animation() && !m_board.detect_checkmate(Color::BLACK))
         {
@@ -114,15 +122,17 @@ void Prog::mainloop()
         SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 100);
         if (m_board.detect_checkmate(Color::WHITE))
         {
+            bool sm = !m_board.detect_check(Color::WHITE);
             SDL_RenderFillRect(m_rend, nullptr);
-            SDL_RenderCopy(m_rend, wcheckmate, nullptr, &rtext);
+            SDL_RenderCopy(m_rend, sm ? stalemate : wcheckmate, nullptr, sm ? &rstalemate : &rtext);
             m_game_over = true;
         }
 
         if (m_board.detect_checkmate(Color::BLACK))
         {
+            bool sm = !m_board.detect_check(Color::BLACK);
             SDL_RenderFillRect(m_rend, nullptr);
-            SDL_RenderCopy(m_rend, bcheckmate, nullptr, &rtext);
+            SDL_RenderCopy(m_rend, sm ? stalemate : bcheckmate, nullptr, sm ? &rstalemate : &rtext);
             m_game_over = true;
         }
         SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
@@ -137,9 +147,9 @@ void Prog::mainloop()
             SDL_Rect rbot = { (int)top_left.x, (int)top_left.y + board_side / 2, board_side, board_side / 2 };
 
             SDL_SetRenderDrawColor(m_rend, 0, 100, 0, 100);
-            SDL_RenderFillRect(m_rend, my < wy / 2 ? &rtop : &rbot);
+            SDL_RenderFillRect(m_rend, my < wy / 2 + 40 ? &rtop : &rbot);
             SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 100);
-            SDL_RenderFillRect(m_rend, my >= wy / 2 ? &rtop : &rbot);
+            SDL_RenderFillRect(m_rend, my >= wy / 2 + 40 ? &rtop : &rbot);
 
             SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
             SDL_Texture *normal = render_text(m_font, "Play computer (Normal)");
@@ -201,6 +211,7 @@ void Prog::mainloop()
 
     SDL_DestroyTexture(wcheckmate);
     SDL_DestroyTexture(bcheckmate);
+    SDL_DestroyTexture(stalemate);
 }
 
 SDL_Texture *Prog::render_text(TTF_Font *font, std::string s)
