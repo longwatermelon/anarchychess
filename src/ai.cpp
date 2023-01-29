@@ -9,11 +9,7 @@ std::vector<Move> ai::get_all_moves(Board &board, Color c)
         for (int x = 0; x < 8; ++x)
         {
             if (board.color_at(Coord(x, y)) == c)
-            {
-                std::vector<Move> piece_moves = board.get_valid_moves(Coord(x, y), false);
-                if (!piece_moves.empty())
-                    moves.insert(moves.end(), piece_moves.begin(), piece_moves.end());
-            }
+                board.get_valid_moves(Coord(x, y), false, moves);
         }
     }
 
@@ -182,10 +178,12 @@ float ai::eval(Board &board)
     {
         for (int x = 0; x < 8; ++x)
         {
-            if (board.color_at(Coord(x, y)) == Color::WHITE)
-                total += points[board.at(Coord(x, y)) - 'A' + 'a'] + pos_points[board.at(Coord(x, y))][y][x] / 10.f;
+            Coord c = Coord(x, y);
+            char p = board.at(c);
+            if (board.color_at(c) == Color::WHITE)
+                total += points[p - 'A' + 'a'] + pos_points[p][y][x] / 10.f;
             else if (board.color_at(Coord(x, y)) == Color::BLACK)
-                total -= points[board.at(Coord(x, y))] + pos_points[board.at(Coord(x, y))][y][x] / 10.f;
+                total -= points[p] + pos_points[p][y][x] / 10.f;
         }
     }
 

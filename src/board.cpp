@@ -243,7 +243,8 @@ Board::~Board()
 
 void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
 {
-    std::vector<Move> moves = get_valid_moves(m_selected, false);
+    std::vector<Move> moves;
+    get_valid_moves(m_selected, false, moves);
 
     for (int y = 0; y < 8; ++y)
     {
@@ -398,7 +399,8 @@ breakloop:
             Coord coord(x, y);
             if (at(coord) != '.' && color_at(coord) != c)
             {
-                std::vector<Move> moves = get_valid_moves(coord, true);
+                std::vector<Move> moves;
+                get_valid_moves(coord, true, moves);
 
                 for (const auto &move : moves)
                 {
@@ -420,7 +422,9 @@ bool Board::detect_checkmate(Color c)
         {
             if (color_at(Coord(x, y)) == c)
             {
-                if (!get_valid_moves(Coord(x, y), false).empty())
+                std::vector<Move> moves;
+                get_valid_moves(Coord(x, y), false, moves);
+                if (!moves.empty())
                     return false;
             }
         }
@@ -443,7 +447,8 @@ void Board::select(Coord c)
     if (m_selected == Coord(-1, -1) && color_at(c) != Color::NONE && color_at(c) != m_turn)
         return;
 
-    std::vector<Move> moves = get_valid_moves(m_selected, false);
+    std::vector<Move> moves;
+    get_valid_moves(m_selected, false, moves);
 
     for (auto &m : moves)
     {
@@ -494,10 +499,8 @@ void Board::restore_saved_board(const std::array<std::array<char, 8>, 8> &board)
     m_board = board;
 }
 
-std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
+void Board::get_valid_moves(Coord from, bool raw, std::vector<Move> &moves)
 {
-    std::vector<Move> moves;
-
     auto pawn_capture = [this, from](Coord c){
         return c.valid() && at(c) != '.' && color_at(c) != color_at(from);
     };
@@ -564,12 +567,13 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
     case 'q': case 'Q':
         if (m_anarchy)
         {
-            scan_valid(from, 1, 1, moves, raw, 8, 'k');
-            scan_valid(from, -1, -1, moves, raw, 8, 'k');
-            scan_valid(from, 1, -1, moves, raw, 8, 'k');
-            scan_valid(from, -1, 1, moves, raw, 8, 'k');
+            std::vector<Move> tmp;
+            scan_valid(from, 1, 1, tmp, raw, 8, 'k');
+            scan_valid(from, -1, -1, tmp, raw, 8, 'k');
+            scan_valid(from, 1, -1, tmp, raw, 8, 'k');
+            scan_valid(from, -1, 1, tmp, raw, 8, 'k');
 
-            for (auto &m : moves)
+            for (auto &m : tmp)
             {
                 m.name = "Alaskan Avalanche";
                 m.special = true;
@@ -589,6 +593,8 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
                     }
                 };
             }
+
+            moves.insert(moves.end(), tmp.begin(), tmp.end());
         }
         else
         {
@@ -661,8 +667,6 @@ std::vector<Move> Board::get_valid_moves(Coord from, bool raw)
             m_board = prev_board;
         }
     }
-
-    return moves;
 }
 
 void Board::scan_valid(Coord from, int dx, int dy, std::vector<Move> &moves, bool raw, int n, char up_to)

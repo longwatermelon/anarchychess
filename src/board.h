@@ -91,7 +91,7 @@ public:
 
     void move(Move move);
 
-    std::vector<Move> get_valid_moves(Coord from, bool raw);
+    void get_valid_moves(Coord from, bool raw, std::vector<Move> &moves);
 
     bool detect_check(Color c);
     bool detect_checkmate(Color c);

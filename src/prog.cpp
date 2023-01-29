@@ -105,7 +105,7 @@ void Prog::mainloop()
             /* if (rand() % 100 < 5) */
             /*     m_board.move(ai::random_move(m_board)); */
             /* else */
-            m_board.move(ai::minimax_root(m_board, 3));
+            m_board.move(ai::minimax_root(m_board, 4));
 
             std::stringstream ss;
             ss.precision(2);
