@@ -251,9 +251,9 @@ void Board::render(SDL_Renderer *rend, SDL_FPoint top_left)
         for (int x = 0; x < 8; ++x)
         {
             if (std::abs(x - y) % 2 == 0)
-                SDL_SetRenderDrawColor(rend, 240, 250, 250, 255);
+                SDL_SetRenderDrawColor(rend, 119, 150, 87, 255);
             else
-                SDL_SetRenderDrawColor(rend, 83, 170, 173, 255);
+                SDL_SetRenderDrawColor(rend, 238, 239, 211, 255);
 
             SDL_FRect rtile = { top_left.x + x * m_tile_size,
                                 top_left.y + y * m_tile_size,
